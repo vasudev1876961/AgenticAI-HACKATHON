@@ -1,4 +1,4 @@
-# Evidence-First Autonomous Document and Data Analyst
+# AgenticAI-HACKATHON: Evidence-First Autonomous Document and Data Analyst
 ### Enterprise Knowledge Agents • Neuro-SAN Multi-Agent Architecture • Deterministic Accounting Engine
 
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
