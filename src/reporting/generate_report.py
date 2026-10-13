@@ -12,10 +12,83 @@ Produces structured, professional reports adhering to the hackathon standards:
 import os
 from dataclasses import dataclass, field
 from typing import Dict, Any, List, Optional
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
+
+
+def render_waterfall_chart(profit_bridge: Dict[str, Any], output_path: str) -> Optional[str]:
+    """Generates a high-resolution financial waterfall chart PNG."""
+    try:
+        steps = profit_bridge.get("waterfall_steps", [])
+        if not steps:
+            return None
+
+        labels = [s["name"].replace(" Operating Profit", "") for s in steps]
+        amounts = [s["amount"] for s in steps]
+        types = [s["type"] for s in steps]
+
+        fig, ax = plt.subplots(figsize=(8, 3.2), dpi=150)
+        fig.patch.set_facecolor('#FFFFFF')
+        ax.set_facecolor('#F8FAFC')
+
+        # Compute bottom offsets for waterfall
+        bottoms = []
+        curr = 0.0
+        bar_colors = []
+
+        for i, (amt, t) in enumerate(zip(amounts, types)):
+            if t == "absolute":
+                bottoms.append(0.0)
+                curr = amt
+                bar_colors.append('#3B82F6')  # Blue for start
+            elif t == "total":
+                bottoms.append(0.0)
+                bar_colors.append('#1E40AF')  # Dark blue for end
+            else:  # relative
+                if amt >= 0:
+                    bottoms.append(curr)
+                    curr += amt
+                    bar_colors.append('#10B981')  # Emerald for positive
+                else:
+                    curr += amt
+                    bottoms.append(curr)
+                    bar_colors.append('#EF4444')  # Red for negative
+
+        bars = ax.bar(labels, amounts, bottom=bottoms, color=bar_colors, width=0.55, edgecolor='#CBD5E1', linewidth=0.8)
+
+        # Value annotations
+        for bar, amt, t in zip(bars, amounts, types):
+            h = bar.get_height()
+            b = bar.get_y()
+            val_txt = f"{amt:+g}k" if t == "relative" else f"{amt:g}k"
+            y_pos = b + h / 2.0 if t != "relative" else (b + h + 2 if h >= 0 else b - 8)
+            ax.annotate(val_txt,
+                        xy=(bar.get_x() + bar.get_width() / 2, y_pos),
+                        xytext=(0, 0),
+                        textcoords="offset points",
+                        ha='center', va='center',
+                        fontsize=8, fontweight='bold',
+                        color='#FFFFFF' if t != 'relative' else '#0F172A')
+
+        ax.set_title("Operating Profit Variance Bridge (in Thousands)", fontsize=11, fontweight='bold', pad=12, color='#0F172A')
+        ax.set_ylabel("Impact (₹ k)", fontsize=9, color='#475569')
+        ax.tick_params(axis='x', rotation=15, labelsize=8)
+        ax.grid(axis='y', linestyle='--', alpha=0.4, color='#CBD5E1')
+        ax.set_axisbelow(True)
+        plt.tight_layout()
+
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        plt.savefig(output_path, bbox_inches='tight', dpi=150)
+        plt.close(fig)
+        return output_path
+    except Exception as e:
+        print(f"Chart render warning: {e}")
+        return None
 
 
 @dataclass
@@ -108,6 +181,13 @@ class FinalAnalysisReport:
             ]))
             story.append(t)
             story.append(Spacer(1, 10))
+
+            # Embed Waterfall Chart Image
+            chart_img_path = os.path.join(os.path.dirname(output_path), "waterfall_bridge_chart.png")
+            rendered = render_waterfall_chart(self.profit_bridge, chart_img_path)
+            if rendered and os.path.exists(rendered):
+                story.append(Image(rendered, width=480, height=192))
+                story.append(Spacer(1, 10))
 
         # Add citations section
         story.append(Paragraph("<b>3. Documented Source Citations</b>", h2_style))

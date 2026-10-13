@@ -3,7 +3,7 @@
 
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
 [![Neuro-SAN](https://img.shields.io/badge/Framework-Neuro--SAN-purple.svg)](https://github.com/cognizant-ai-lab/neuro-san-studio)
-[![Tests Passing](https://img.shields.io/badge/Tests-24%2F24%20Passed-brightgreen.svg)]()
+[![Tests Passing](https://img.shields.io/badge/Tests-27%2F27%20Passed-brightgreen.svg)]()
 [![Deterministic Math](https://img.shields.io/badge/Reconciliation-100%25%20Verified-emerald.svg)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -187,11 +187,15 @@ cp .env.example .env
 ```
 *(Note: The system contains a fully deterministic reasoning engine that runs locally with 100% fidelity without requiring external API keys).*
 
-### Step 3: Run the Automated Test Suite
+### Step 3: Run the Automated Test Suite & Benchmark CLI
 ```bash
+# Run 27 comprehensive unit & advancement tests
 python -m pytest -v
+
+# Run 10-scenario hackathon benchmark evaluation
+python benchmark_runner.py
 ```
-**Result:** 24 out of 24 tests pass in ~2 seconds.
+**Result:** 27 out of 27 unit tests pass (100%), and 10/10 hackathon scenarios pass with summary JSON export.
 
 ### Step 4: Launch the Streamlit Executive Dashboard
 ```bash

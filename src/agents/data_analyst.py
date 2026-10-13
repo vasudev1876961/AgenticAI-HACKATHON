@@ -92,6 +92,14 @@ class DataAnalystAgent(BaseAgent):
             p2_name=p2_name
         )
 
+        # Regional Drill-Down Analysis if Regional Breakdown sheet exists
+        regional_analysis = None
+        for doc in self.doc_manager.documents.values():
+            if "Regional Breakdown" in doc.dataframes:
+                from ..analysis.regional_analysis import analyze_regional_breakdown
+                regional_analysis = analyze_regional_breakdown(doc.dataframes["Regional Breakdown"])
+                break
+
         # Individual period comparisons
         comparisons = [
             compare_periods("Revenue", p1_name, p1_data["revenue"], p2_name, p2_data["revenue"]),
@@ -116,5 +124,6 @@ class DataAnalystAgent(BaseAgent):
             "source_file": source_file,
             "source_sheet": source_sheet,
             "bridge": bridge_result.to_dict(),
-            "comparisons": comparisons
+            "comparisons": comparisons,
+            "regional_breakdown": regional_analysis
         }

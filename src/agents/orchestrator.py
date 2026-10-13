@@ -16,6 +16,7 @@ from .verifier import VerificationCriticAgent
 from .report_writer import ReportWriterAgent
 from ..ingestion.loader_manager import DocumentManager
 from ..retrieval.search import EvidenceSearchEngine
+from ..retrieval.hybrid_search import HybridSearchEngine
 from ..reporting.generate_report import FinalAnalysisReport
 
 
@@ -34,14 +35,19 @@ class AnalystOrchestrator(BaseAgent):
     a strict evaluation and verification loop.
     """
 
-    def __init__(self, doc_manager: DocumentManager, max_retries: int = 2):
+    def __init__(self, doc_manager: DocumentManager, max_retries: int = 2, use_hybrid_search: bool = True):
         super().__init__(
             name="AnalystOrchestrator",
             role_description="Decomposes research questions, routes sub-tasks to specialist agents, and oversees quality control."
         )
         self.doc_manager = doc_manager
-        self.search_engine = EvidenceSearchEngine(doc_manager.all_chunks)
         self.max_retries = max_retries
+        self.use_hybrid_search = use_hybrid_search
+
+        if use_hybrid_search:
+            self.search_engine = HybridSearchEngine(doc_manager.all_chunks)
+        else:
+            self.search_engine = EvidenceSearchEngine(doc_manager.all_chunks)
 
         # Initialize specialists
         self.researcher = DocumentResearcherAgent(doc_manager, self.search_engine)
@@ -53,7 +59,10 @@ class AnalystOrchestrator(BaseAgent):
 
     def update_engine(self):
         """Refreshes search index and critic lookups after new files are ingested."""
-        self.search_engine = EvidenceSearchEngine(self.doc_manager.all_chunks)
+        if self.use_hybrid_search:
+            self.search_engine = HybridSearchEngine(self.doc_manager.all_chunks)
+        else:
+            self.search_engine = EvidenceSearchEngine(self.doc_manager.all_chunks)
         self.researcher.search_engine = self.search_engine
         self.verifier.critic_engine.set_evidence_lookup(self.search_engine.evidence_lookup)
 
@@ -166,6 +175,7 @@ class AnalystOrchestrator(BaseAgent):
             "report": final_report,
             "bridge": bridge_dict,
             "comparisons": comparisons,
+            "regional_breakdown": analysis_out.get("regional_breakdown"),
             "citations": retrieved_evidence[:6],
             "contradictions": contradictions,
             "audit": audit_report,
