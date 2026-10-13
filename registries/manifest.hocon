@@ -1,0 +1,13 @@
+# Neuro-SAN Network Manifest
+# Registers networks and active agent endpoints
+
+networks = [
+  {
+    id = "evidence_first_document_analyst"
+    name = "Evidence-First Autonomous Document and Data Analyst"
+    description = "Autonomous multi-agent investigation system for documents, financial spreadsheets, and variance audit."
+    config_file = "registries/document_analyst.hocon"
+    entry_agent = "AnalystOrchestrator"
+    tags = ["enterprise", "knowledge-agents", "finance", "audit", "verification"]
+  }
+]
