@@ -19,6 +19,14 @@ if BASE_DIR not in sys.path:
 from src.ingestion.loader_manager import DocumentManager
 from src.agents.orchestrator import AnalystOrchestrator
 from src.analysis.compare_periods import compare_periods
+from src.analysis.counterfactual_simulation import (
+    simulate_counterfactual,
+    generate_sensitivity_matrix,
+    rank_recovery_levers
+)
+from src.analysis.document_forensics import analyze_financial_forensics
+from src.reporting.executive_briefing_html import generate_executive_briefing_html
+
 
 # Page Configuration
 st.set_page_config(
@@ -192,14 +200,17 @@ with st.sidebar:
 
 
 # Tabs Navigation
-tab_investigation, tab_regional, tab_evidence, tab_critic, tab_benchmark, tab_architecture = st.tabs([
+tab_investigation, tab_simulation, tab_forensics, tab_regional, tab_evidence, tab_critic, tab_benchmark, tab_architecture = st.tabs([
     "🚀 Live Investigation",
+    "🔮 What-If Simulator",
+    "🔍 Financial Forensics",
     "🗺️ Regional Drill-Down",
     "📑 Evidence & Citations",
     "🛡️ Verification Critic",
     "🎯 Hackathon Benchmark Suite",
     "🏛️ System Architecture"
 ])
+
 
 
 # =========================================================
@@ -348,10 +359,10 @@ with tab_investigation:
 
         # Export Buttons
         st.markdown("---")
-        col_exp1, col_exp2, col_exp3 = st.columns(3)
+        col_exp1, col_exp2, col_exp3, col_exp4 = st.columns(4)
         with col_exp1:
             st.download_button(
-                "📥 Download Markdown Report",
+                "📥 Markdown Report",
                 data=report_obj.markdown_content if report_obj else "",
                 file_name="investigation_report.md",
                 mime="text/markdown",
@@ -364,7 +375,7 @@ with tab_investigation:
                     report_obj.export_pdf(pdf_path)
                     with open(pdf_path, "rb") as pf:
                         st.download_button(
-                            "📑 Download PDF Audit Report",
+                            "📑 PDF Audit Report",
                             data=pf.read(),
                             file_name="latest_investigation_report.pdf",
                             mime="application/pdf",
@@ -373,11 +384,33 @@ with tab_investigation:
                 except Exception as e:
                     st.error(f"PDF generation note: {e}")
         with col_exp3:
+            if report_obj:
+                try:
+                    html_content = generate_executive_briefing_html(
+                        report_title=f"Executive Briefing: {res.get('question', 'Financial Investigation')}",
+                        executive_summary=report_obj.executive_summary,
+                        bridge=res.get("bridge", {}),
+                        citations=res.get("citations", []),
+                        contradictions=res.get("contradictions", []),
+                        audit=res.get("audit", {}),
+                        regional_breakdown=res.get("regional_breakdown"),
+                        forensics=res.get("forensics")
+                    )
+                    st.download_button(
+                        "🌐 HTML Executive Briefing",
+                        data=html_content,
+                        file_name="executive_briefing.html",
+                        mime="text/html",
+                        use_container_width=True
+                    )
+                except Exception as e:
+                    st.error(f"HTML generation note: {e}")
+        with col_exp4:
             bm_summary_path = os.path.join(BASE_DIR, "outputs", "benchmark_summary.json")
             if os.path.exists(bm_summary_path):
                 with open(bm_summary_path, "r", encoding="utf-8") as bf:
                     st.download_button(
-                        "🎯 Download Benchmark JSON",
+                        "🎯 Benchmark JSON",
                         data=bf.read(),
                         file_name="benchmark_summary.json",
                         mime="application/json",
@@ -385,8 +418,222 @@ with tab_investigation:
                     )
 
 
+
 # =========================================================
-# TAB: REGIONAL DRILL-DOWN
+# TAB 2: WHAT-IF SCENARIO SIMULATOR
+# =========================================================
+with tab_simulation:
+    st.subheader("🔮 Counterfactual What-If Scenario Simulator")
+    st.markdown(
+        "Simulate strategic executive interventions in real-time. Adjust operational levers below to "
+        "observe counterfactual profit bridge calculations, loss recovery percentages, and full mathematical reconciliation."
+    )
+
+    col_s1, col_s2 = st.columns([1, 1])
+    with col_s1:
+        st.markdown("#### 🎛️ Counterfactual Operational Levers")
+        sim_rev = st.slider("Q3 Revenue Realization (₹ k)", min_value=800, max_value=1100, value=940, step=10, help="Baseline: ₹940k (Q2 was ₹1,000k)")
+        sim_cogs = st.slider("Q3 Cost of Goods Sold (₹ k)", min_value=500, max_value=650, value=585, step=5, help="Baseline: ₹585k (Q2 was ₹600k)")
+        sim_mkt = st.slider("Q3 Marketing Expenditure (₹ k)", min_value=75, max_value=160, value=125, step=5, help="Baseline: ₹125k (Q2 was ₹100k)")
+        sim_opex = st.slider("Q3 Other Operating Expenses (₹ k)", min_value=120, max_value=190, value=160, step=5, help="Baseline: ₹160k (Q2 was ₹150k)")
+
+    p1_base = {"revenue": 1000.0, "cogs": 600.0, "marketing": 100.0, "other_opex": 150.0}
+    p2_base = {"revenue": 940.0, "cogs": 585.0, "marketing": 125.0, "other_opex": 160.0}
+
+    sim_result = simulate_counterfactual(
+        p1=p1_base,
+        p2=p2_base,
+        modifications={"revenue": float(sim_rev), "cogs": float(sim_cogs), "marketing": float(sim_mkt), "other_opex": float(sim_opex)},
+        scenario_name="Interactive Executive Simulation"
+    )
+
+    with col_s2:
+        st.markdown("#### 📈 Simulated Profit Outcome")
+        sim_profit = sim_result.counterfactual_bridge.p_end
+        sim_delta = sim_result.counterfactual_profit_delta
+        recovery = sim_result.profit_recovery_amount
+        recovery_pct = sim_result.recovery_percentage or 0.0
+
+        cols_kpi = st.columns(2)
+        with cols_kpi[0]:
+            p_color = "#10B981" if sim_profit >= 100 else ("#F59E0B" if sim_profit >= 70 else "#EF4444")
+            st.markdown(f"""
+            <div class="metric-box">
+                <div class="metric-lbl">Simulated Q3 Profit</div>
+                <div class="metric-val" style="color: {p_color};">₹{sim_profit:g}k</div>
+                <small style="color: #94A3B8;">Baseline Q3: ₹70k</small>
+            </div>
+            """, unsafe_allow_html=True)
+        with cols_kpi[1]:
+            rec_color = "#10B981" if recovery > 0 else ("#EF4444" if recovery < 0 else "#94A3B8")
+            st.markdown(f"""
+            <div class="metric-box">
+                <div class="metric-lbl">Profit Recovery vs Baseline</div>
+                <div class="metric-val" style="color: {rec_color};">₹{recovery:+g}k</div>
+                <small style="color: #94A3B8;">{recovery_pct:+.1f}% of drop recovered</small>
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.markdown("<br/>", unsafe_allow_html=True)
+        rec_status = "100% Reconciled (0.00 Discrepancy)" if sim_result.is_reconciled else "Discrepancy"
+        sim_margin = (sim_profit / sim_rev) * 100.0 if sim_rev else 0.0
+        st.markdown(f"""
+        - **Net Variance from Q2 (150k):** `{sim_delta:+g}k`
+        - **Deterministic Reconciliation:** `{rec_status}`
+        - **Simulated Operating Margin:** `{sim_margin:.2f}%` (Baseline Q3 was 7.45%)
+        """)
+
+    st.markdown("---")
+    st.subheader("Simulated Waterfall Profit Bridge")
+    cf_steps = sim_result.counterfactual_bridge.waterfall_steps
+    cf_labels = [s["name"] for s in cf_steps]
+    cf_vals = [s["amount"] for s in cf_steps]
+    cf_measures = ["absolute"] + ["relative"] * (len(cf_steps) - 2) + ["total"]
+
+    fig_sim = go.Figure(go.Waterfall(
+        name="Simulated Bridge",
+        orientation="v",
+        measure=cf_measures,
+        x=cf_labels,
+        y=cf_vals,
+        textposition="outside",
+        text=[f"{v:+g}k" if m == "relative" else f"{v:g}k" for v, m in zip(cf_vals, cf_measures)],
+        decreasing={"marker": {"color": "#EF4444"}},
+        increasing={"marker": {"color": "#10B981"}},
+        totals={"marker": {"color": "#3B82F6"}}
+    ))
+    fig_sim.update_layout(
+        title="Simulated Operating Profit Bridge (in Thousands)",
+        waterfallgap=0.3,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#F8FAFC", family="Inter"),
+        height=380
+    )
+    st.plotly_chart(fig_sim, use_container_width=True)
+
+    st.markdown("---")
+    col_pb1, col_pb2 = st.columns([1, 1])
+    with col_pb1:
+        st.subheader("🏆 Ranked Strategic Recovery Playbooks")
+        st.markdown("Autonomous evaluations of corporate intervention strategies:")
+        playbooks = rank_recovery_levers(p1_base, p2_base)
+        df_pb = pd.DataFrame([
+            {
+                "Strategy": p["scenario_name"],
+                "Intervention": p["description"],
+                "Resulting Profit": f"₹{p['new_profit']:g}k",
+                "Profit Recovery": f"+₹{p['recovery_amount']:g}k",
+                "Share Recovered": f"{p['recovery_pct']:.1f}%"
+            }
+            for p in playbooks
+        ])
+        st.dataframe(df_pb, use_container_width=True, hide_index=True)
+
+    with col_pb2:
+        st.subheader("📊 2D Sensitivity Grid (Revenue vs Marketing)")
+        st.markdown("Matrix of resulting operating profit under variable revenue & marketing combinations:")
+        sens = generate_sensitivity_matrix(p1_base, p2_base)
+        matrix_data = {}
+        for row in sens["grid"]:
+            lbl = f"Rev {row['var1_pct_label']} ({row['var1_val']}k)"
+            matrix_data[lbl] = {
+                f"Mkt {col['var2_pct']}": f"₹{col['resulting_profit']:g}k"
+                for col in row["columns"]
+            }
+        df_sens = pd.DataFrame(matrix_data).T
+        st.dataframe(df_sens, use_container_width=True)
+
+
+# =========================================================
+# TAB 3: FINANCIAL FORENSICS & ANOMALY DETECTOR
+# =========================================================
+with tab_forensics:
+    st.subheader("🔍 Statistical Financial Forensics & Outlier Detector")
+    st.markdown(
+        "Autonomous audit of corporate operational ratios, efficiency deteriorations, "
+        "and reconciliation against Board performance targets."
+    )
+
+    res = st.session_state.last_result
+    forensics_data = res.get("forensics") if res else None
+    if not forensics_data:
+        forensics_data = st.session_state.orchestrator.forensics_agent.audit()
+
+    if forensics_data:
+        r_p1 = forensics_data.get("ratios_p1", {})
+        r_p2 = forensics_data.get("ratios_p2", {})
+        r_diff = forensics_data.get("ratio_variances", {})
+
+        cols_r = st.columns(4)
+        with cols_r[0]:
+            st.metric(
+                "Operating Margin",
+                f"{r_p2.get('operating_margin_pct', 7.45):.2f}%",
+                delta=f"{r_diff.get('operating_margin_pct', -7.55):+.2f}%",
+                delta_color="normal"
+            )
+        with cols_r[1]:
+            st.metric(
+                "Marketing Intensity (M/R)",
+                f"{r_p2.get('marketing_intensity_pct', 13.3):.2f}%",
+                delta=f"{r_diff.get('marketing_intensity_pct', 3.3):+.2f}%",
+                delta_color="inverse"
+            )
+        with cols_r[2]:
+            st.metric(
+                "COGS Intensity (C/R)",
+                f"{r_p2.get('cogs_intensity_pct', 62.23):.2f}%",
+                delta=f"{r_diff.get('cogs_intensity_pct', 2.23):+.2f}%",
+                delta_color="inverse"
+            )
+        with cols_r[3]:
+            st.metric(
+                "Overall Forensic Risk",
+                forensics_data.get("overall_risk_score", "ELEVATED"),
+                delta="Audited"
+            )
+
+        st.markdown("---")
+        col_fa1, col_fa2 = st.columns([3, 2])
+        with col_fa1:
+            st.subheader("🚨 Detected Accounting & Operational Anomalies")
+            anomalies = forensics_data.get("anomalies", [])
+            for a in anomalies:
+                sev = a.get("severity", "HIGH")
+                sev_color = "#EF4444" if sev == "CRITICAL" else ("#F59E0B" if sev == "HIGH" else "#3B82F6")
+                badge_class = "sev-critical" if sev == "CRITICAL" else "sev-high"
+                st.markdown(f"""
+                <div style="background: rgba(30, 41, 59, 0.5); border-left: 4px solid {sev_color}; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <strong>{a.get('metric')}</strong>
+                        <span class="anomaly-badge {badge_class}">{sev}</span>
+                    </div>
+                    <div style="font-size: 13px; color: #CBD5E1; margin: 4px 0;">{a.get('description')}</div>
+                    <small style="color: #6EE7B7;">Recommended Action: {a.get('recommended_action')}</small><br/>
+                    <small style="color: #94A3B8;">Source: {a.get('evidence_pointer')}</small>
+                </div>
+                """, unsafe_allow_html=True)
+
+        with col_fa2:
+            st.subheader("🎯 Board Target Realization (DOCX)")
+            targets = forensics_data.get("target_reconciliation", [])
+            df_t = pd.DataFrame([
+                {
+                    "Metric": t["metric"],
+                    "Target": f"₹{t['target']:g}k",
+                    "Actual": f"₹{t['actual']:g}k",
+                    "Gap": f"{t['variance']:+g}k",
+                    "Verdict": t["status"]
+                }
+                for t in targets
+            ])
+            st.dataframe(df_t, use_container_width=True, hide_index=True)
+            st.info("Document Reference: `quarterly_targets.docx` (Board of Directors Performance Targets)")
+
+
+# =========================================================
+# TAB 4: REGIONAL DRILL-DOWN
 # =========================================================
 with tab_regional:
     st.subheader("🗺️ Geographical & Regional Drill-Down Analysis")

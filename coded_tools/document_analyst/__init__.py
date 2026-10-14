@@ -3,6 +3,8 @@ from .retrieval_tool import RetrievalTool
 from .spreadsheet_tool import SpreadsheetTool
 from .calculation_tool import CalculationTool
 from .verification_tool import VerificationTool
+from .simulation_tool import SimulationTool
+from .forensics_tool import ForensicsTool
 
 __all__ = [
     "IngestionTool",
@@ -10,4 +12,7 @@ __all__ = [
     "SpreadsheetTool",
     "CalculationTool",
     "VerificationTool",
+    "SimulationTool",
+    "ForensicsTool",
 ]
+

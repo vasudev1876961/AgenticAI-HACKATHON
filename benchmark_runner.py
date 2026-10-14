@@ -92,6 +92,18 @@ def run_benchmarks():
             "name": "Verification Critic Failure Loop",
             "query": "The draft says profit improved, but calculations show decline.",
             "target": "Critic rejects draft, returns NEEDS_CORRECTION and retries"
+        },
+        {
+            "id": "SCN-11",
+            "name": "What-If Counterfactual Model",
+            "query": "What if marketing had been held flat at Q2 level (100k)?",
+            "target": "Deterministic simulation: +25k recovery (31.25% of loss) & 100% reconciled"
+        },
+        {
+            "id": "SCN-12",
+            "name": "Forensic Ratio & Target Audit",
+            "query": "Audit operational ratios and compare realized numbers with board targets.",
+            "target": "Flags operating margin contraction, marketing surge, and target gaps"
         }
     ]
 
@@ -120,10 +132,19 @@ def run_benchmarks():
             )
             passed = audit["status"] == "NEEDS_CORRECTION" and audit["retry"] is True
             outcome_detail = f"Audit Status: {audit['status']}, Retry Triggered: {audit['retry']}"
+        elif bm["id"] == "SCN-11":
+            sim = orchestrator.scenario_simulator.simulate({"marketing": 100.0}, scenario_name="Flat Marketing")
+            passed = sim["profit_recovery_amount"] == 25.0 and sim["is_reconciled"] is True
+            outcome_detail = f"Recovery: +{sim['profit_recovery_amount']}k ({sim['recovery_percentage']:.1f}% recovered), Reconciled: {sim['is_reconciled']}"
+        elif bm["id"] == "SCN-12":
+            forensics = orchestrator.forensics_agent.audit()
+            passed = len(forensics["anomalies"]) >= 2 and len(forensics["target_reconciliation"]) >= 2
+            outcome_detail = f"Anomalies: {len(forensics['anomalies'])}, Targets Audited: {len(forensics['target_reconciliation'])}, Risk: {forensics['overall_risk_score']}"
         else:
             res = orchestrator.run_investigation(bm["query"])
             passed = True
             outcome_detail = "Investigated, Verified & Reconciled"
+
 
         latency = round(time.time() - t0, 3)
         if passed:

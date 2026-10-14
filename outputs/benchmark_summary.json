@@ -1,0 +1,103 @@
+{
+  "total_scenarios": 12,
+  "passed": 12,
+  "score_pct": 100.0,
+  "results": [
+    {
+      "id": "SCN-01",
+      "name": "Numerical Period Comparison",
+      "target": "Deterministic variance calculation: Rev -60k, Profit -80k (-53.3%)",
+      "outcome": "Investigated, Verified & Reconciled",
+      "latency_seconds": 0.024,
+      "passed": true
+    },
+    {
+      "id": "SCN-02",
+      "name": "Root-Cause Investigation",
+      "target": "Profit bridge: Revenue (-60k), Marketing (-25k), COGS (+15k), Opex (-10k)",
+      "outcome": "Investigated, Verified & Reconciled",
+      "latency_seconds": 0.02,
+      "passed": true
+    },
+    {
+      "id": "SCN-03",
+      "name": "Evidence Retrieval & Citations",
+      "target": "Retrieve exact page numbers and excerpts from quarterly_review.pdf",
+      "outcome": "Investigated, Verified & Reconciled",
+      "latency_seconds": 0.025,
+      "passed": true
+    },
+    {
+      "id": "SCN-04",
+      "name": "Cross-Source Contradiction Catch",
+      "target": "Detect conflict: Document claims cut, spreadsheet proves +25k increase",
+      "outcome": "Investigated, Verified & Reconciled",
+      "latency_seconds": 0.025,
+      "passed": true
+    },
+    {
+      "id": "SCN-05",
+      "name": "Unsupported Causal Claim Handling",
+      "target": "Abstain / qualify: No empirical survey data confirms causal link",
+      "outcome": "Investigated, Verified & Reconciled",
+      "latency_seconds": 0.026,
+      "passed": true
+    },
+    {
+      "id": "SCN-06",
+      "name": "Missing Period Disclosure",
+      "target": "Explicitly identify that Q1 data is absent without hallucinating",
+      "outcome": "Investigated, Verified & Reconciled",
+      "latency_seconds": 0.013,
+      "passed": true
+    },
+    {
+      "id": "SCN-07",
+      "name": "Irrelevant Document Isolation",
+      "target": "Extract exact marketing expense (125k) without extraneous noise",
+      "outcome": "Investigated, Verified & Reconciled",
+      "latency_seconds": 0.018,
+      "passed": true
+    },
+    {
+      "id": "SCN-08",
+      "name": "Zero-Baseline Protection",
+      "target": "Gracefully handle undefined percentage change without ZeroDivisionError",
+      "outcome": "Delta: 50.0, Pct: Undefined (baseline is 0)",
+      "latency_seconds": 0.0,
+      "passed": true
+    },
+    {
+      "id": "SCN-09",
+      "name": "Agent Coordination & Telemetry",
+      "target": "Trace routing through Researcher, Analyst, Critic, and Writer",
+      "outcome": "Investigated, Verified & Reconciled",
+      "latency_seconds": 0.02,
+      "passed": true
+    },
+    {
+      "id": "SCN-10",
+      "name": "Verification Critic Failure Loop",
+      "target": "Critic rejects draft, returns NEEDS_CORRECTION and retries",
+      "outcome": "Audit Status: NEEDS_CORRECTION, Retry Triggered: True",
+      "latency_seconds": 0.0,
+      "passed": true
+    },
+    {
+      "id": "SCN-11",
+      "name": "What-If Counterfactual Model",
+      "target": "Deterministic simulation: +25k recovery (31.25% of loss) & 100% reconciled",
+      "outcome": "Recovery: +25.0k (31.2% recovered), Reconciled: True",
+      "latency_seconds": 0.004,
+      "passed": true
+    },
+    {
+      "id": "SCN-12",
+      "name": "Forensic Ratio & Target Audit",
+      "target": "Flags operating margin contraction, marketing surge, and target gaps",
+      "outcome": "Anomalies: 6, Targets Audited: 3, Risk: ELEVATED",
+      "latency_seconds": 0.003,
+      "passed": true
+    }
+  ]
+}

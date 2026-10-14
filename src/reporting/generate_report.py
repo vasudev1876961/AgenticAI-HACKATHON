@@ -107,6 +107,22 @@ class FinalAnalysisReport:
         with open(output_path, "w", encoding="utf-8") as f:
             f.write(self.markdown_content)
 
+    def export_html(self, output_path: str):
+        from .executive_briefing_html import generate_executive_briefing_html
+        html = generate_executive_briefing_html(
+            report_title=self.title,
+            executive_summary=self.executive_summary,
+            bridge=self.profit_bridge or {},
+            citations=self.citations,
+            contradictions=self.contradictions,
+            audit=self.verification_audit
+        )
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(html)
+        return output_path
+
+
     def export_pdf(self, output_path: str):
         doc = SimpleDocTemplate(
             output_path,

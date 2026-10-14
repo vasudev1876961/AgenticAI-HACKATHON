@@ -32,9 +32,12 @@ Never invent figures. Every numerical fact must be computed deterministically.
         "DataAnalyst",
         "CrossSourceInvestigator",
         "VerificationAgent",
+        "ScenarioSimulationAgent",
+        "DocumentForensicsAgent",
         "ReportWriter"
       ]
     }
+
 
     DocumentResearcher {
       type = "specialist"
@@ -114,6 +117,42 @@ If any critical check fails, issue 'NEEDS_CORRECTION' with specific remediation.
       ]
     }
 
+    ScenarioSimulationAgent {
+      type = "specialist"
+      description = "Performs counterfactual What-If scenario simulations, sensitivity matrices, and recovery playbooks."
+      instructions = """
+You are the Scenario Simulation Specialist.
+- Simulate hypothetical management decisions (e.g., flat marketing, price cushions).
+- Maintain deterministic mathematical reconciliation across all counterfactual calculations.
+- Rank strategic intervention playbooks by profit recovery percentage.
+"""
+      tools = [
+        {
+          name = "simulate_scenario"
+          class_path = "coded_tools.document_analyst.simulation_tool.SimulationTool"
+          description = "Simulates counterfactual financial scenarios, sensitivity matrices, and recovery playbooks."
+        }
+      ]
+    }
+
+    DocumentForensicsAgent {
+      type = "specialist"
+      description = "Audits datasets for statistical ratio surges, cost elasticity failures, and target realization gaps."
+      instructions = """
+You are the Document Forensics Specialist.
+- Audit corporate financial ratios for abnormal shifts (e.g. marketing intensity surge).
+- Check cost elasticity against declining revenue volume.
+- Reconcile actual quarterly performance against board expectations and targets.
+"""
+      tools = [
+        {
+          name = "audit_forensics"
+          class_path = "coded_tools.document_analyst.forensics_tool.ForensicsTool"
+          description = "Audits financial ratios, cost elasticity, and target-vs-actual discrepancies."
+        }
+      ]
+    }
+
     ReportWriter {
       type = "specialist"
       description = "Generates the user-facing executive report from verified findings."
@@ -127,3 +166,4 @@ Never alter verified numbers.
     }
   }
 }
+

@@ -14,6 +14,8 @@ from .data_analyst import DataAnalystAgent
 from .investigator import CrossSourceInvestigatorAgent
 from .verifier import VerificationCriticAgent
 from .report_writer import ReportWriterAgent
+from .scenario_agent import ScenarioSimulationAgent
+from .forensics_agent import DocumentForensicsAgent
 from ..ingestion.loader_manager import DocumentManager
 from ..retrieval.search import EvidenceSearchEngine
 from ..retrieval.hybrid_search import HybridSearchEngine
@@ -31,7 +33,7 @@ class InvestigationPlan:
 class AnalystOrchestrator(BaseAgent):
     """
     Agent 1: Analyst Orchestrator
-    Entry point for user questions, coordinating the 5 specialist agents through
+    Entry point for user questions, coordinating specialist agents through
     a strict evaluation and verification loop.
     """
 
@@ -56,6 +58,9 @@ class AnalystOrchestrator(BaseAgent):
         self.verifier = VerificationCriticAgent(max_retries=max_retries)
         self.verifier.critic_engine.set_evidence_lookup(self.search_engine.evidence_lookup)
         self.report_writer = ReportWriterAgent()
+        self.scenario_simulator = ScenarioSimulationAgent(doc_manager)
+        self.forensics_agent = DocumentForensicsAgent(doc_manager)
+
 
     def update_engine(self):
         """Refreshes search index and critic lookups after new files are ingested."""
@@ -146,7 +151,10 @@ class AnalystOrchestrator(BaseAgent):
             )
             retry_count += 1
 
-        # Step 6: Final Report Generation
+        # Step 6: Forensics & Anomaly Audit
+        forensics_out = self.forensics_agent.audit()
+
+        # Step 7: Final Report Generation
         final_report: FinalAnalysisReport = self.report_writer.write_report(
             question=question,
             bridge_result=bridge_dict,
@@ -165,6 +173,8 @@ class AnalystOrchestrator(BaseAgent):
         all_logs.extend(self.data_analyst.execution_log)
         all_logs.extend(self.investigator.execution_log)
         all_logs.extend(self.verifier.execution_log)
+        all_logs.extend(self.forensics_agent.execution_log)
+        all_logs.extend(self.scenario_simulator.execution_log)
         all_logs.extend(self.report_writer.execution_log)
         all_logs.sort(key=lambda m: m.timestamp)
 
@@ -176,8 +186,10 @@ class AnalystOrchestrator(BaseAgent):
             "bridge": bridge_dict,
             "comparisons": comparisons,
             "regional_breakdown": analysis_out.get("regional_breakdown"),
+            "forensics": forensics_out,
             "citations": retrieved_evidence[:6],
             "contradictions": contradictions,
             "audit": audit_report,
             "execution_logs": [m.to_dict() for m in all_logs]
         }
+

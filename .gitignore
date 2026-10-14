@@ -46,6 +46,8 @@ htmlcov/
 # Outputs & Temporary Caches
 outputs/*
 !outputs/.gitkeep
+!outputs/benchmark_summary.json
 temp/
+
 tmp/
 .streamlit/secrets.toml

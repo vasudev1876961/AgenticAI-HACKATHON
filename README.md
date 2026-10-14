@@ -3,13 +3,15 @@
 
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
 [![Neuro-SAN](https://img.shields.io/badge/Framework-Neuro--SAN-purple.svg)](https://github.com/cognizant-ai-lab/neuro-san-studio)
-[![Tests Passing](https://img.shields.io/badge/Tests-27%2F27%20Passed-brightgreen.svg)]()
+[![Tests Passing](https://img.shields.io/badge/Tests-42%2F42%20Passed-brightgreen.svg)]()
+[![Benchmarks](https://img.shields.io/badge/Benchmarks-12%2F12%20Passed-emerald.svg)]()
 [![Deterministic Math](https://img.shields.io/badge/Reconciliation-100%25%20Verified-emerald.svg)]()
+[![FastAPI](https://img.shields.io/badge/REST%20API-FastAPI%20Enabled-009688.svg)](http://127.0.0.1:8000/docs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 > **Hackathon Submission:** Autonomous Document and Data Analyst  
 > **Theme:** Enterprise Knowledge Agents / Domain-Specific Agentic Applications  
-> **Built With:** Neuro-SAN Multi-Agent Framework, Python Deterministic Analytics, Streamlit Executive Dashboard.
+> **Built With:** Neuro-SAN Multi-Agent Framework, Python Deterministic Analytics, FastAPI REST Server, Streamlit Executive Dashboard.
 
 ---
 
@@ -27,14 +29,17 @@ Conventional generative document chatbots fail:
 1. **Mathematical Inaccuracy:** LLMs hallucinate calculations, fail to reconcile balances, and cannot reliably perform variance analysis across multi-sheet spreadsheets.
 2. **Citation Dissociation:** Chatbots generate plausible narratives without preserving exact links to underlying spreadsheet cells, rows, or PDF pages.
 3. **Inability to Resolve Contradictions:** When written commentary conflicts with actual financial data (e.g. a narrative claims marketing fell, but numbers prove it rose), chatbots silently pick one narrative.
+4. **Lack of Counterfactual Simulation:** Chatbots cannot answer executive "What-If" questions (e.g., *"What if marketing spend had stayed flat?"*) with deterministic accounting guarantees.
 
 ### The Solution: Evidence-First Autonomous Analyst
-Our system autonomously investigates the question:
-- Discovers and extracts data across multi-format documents while preserving exact provenance.
-- Computes period changes and profit bridges using **deterministic Python tools** instead of LLM arithmetic.
-- Cross-examines numerical findings with written commentary to detect contradictions.
-- Enforces an independent **Verification Critic** evaluation loop with bounded corrections.
-- Produces an executive report where every assertion is linked to an exact evidence citation.
+Our system autonomously investigates complex business questions:
+- **Discovers and extracts data** across multi-format documents while preserving exact provenance.
+- **Computes period changes and profit bridges** using **deterministic Python tools** instead of LLM arithmetic.
+- **Simulates Counterfactual Interventions ("What-If")** with exact profit recovery and 2D sensitivity grids.
+- **Forensic Anomaly Detection** across financial ratios, cost elasticity, and board target gaps.
+- **Cross-examines numerical findings** with written commentary to detect contradictions.
+- **Enforces an independent Verification Critic** evaluation loop with bounded corrections.
+- **Produces multi-format deliverables**: Streamlit Dashboard, Interactive HTML Briefing, PDF Audit Report with Waterfall Chart, and FastAPI REST Endpoints.
 
 ---
 
@@ -42,39 +47,45 @@ Our system autonomously investigates the question:
 
 ```mermaid
 graph TD
-    User([User / Executive]) --> Orchestrator[1. Analyst Orchestrator Agent]
+    User([User / Executive / REST Client]) --> Orchestrator[1. Analyst Orchestrator Agent]
     
     subgraph Multi-Agent Network [Neuro-SAN Multi-Agent Network]
         Orchestrator --> Researcher[2. Document Researcher Agent]
         Orchestrator --> Analyst[3. Data Analyst Agent]
-        Researcher --> Investigator[4. Cross-Source Investigator Agent]
+        Orchestrator --> ScenarioAgent[4. Scenario Simulation Agent]
+        Orchestrator --> ForensicsAgent[5. Document Forensics Agent]
+        Researcher --> Investigator[6. Cross-Source Investigator Agent]
         Analyst --> Investigator
-        Investigator --> Critic[5. Verification Critic Agent]
-        Critic -- "APPROVED" --> Writer[6. Report Writer Agent]
+        Investigator --> Critic[7. Verification Critic Agent]
+        Critic -- "APPROVED" --> Writer[8. Report Writer Agent]
         Critic -- "NEEDS_CORRECTION (Retry <= 2)" --> Orchestrator
     end
     
     subgraph Deterministic Coded Tools [Python Deterministic Coded Tools]
         Researcher --> IngestTool[IngestionTool: PyMuPDF / OpenPyXL / Docx]
-        Researcher --> SearchTool[RetrievalTool: BM25 & Metadata Filter]
+        Researcher --> SearchTool[RetrievalTool: Dense + BM25 RRF Search]
         Analyst --> SheetTool[SpreadsheetTool: OpenPyXL / Pandas Schema]
         Analyst --> CalcTool[CalculationTool: Deterministic Profit Bridge]
+        ScenarioAgent --> SimTool[SimulationTool: Counterfactual & Sensitivity]
+        ForensicsAgent --> ForensicsTool[ForensicsTool: Ratio Surge & Target Gap]
         Critic --> VerifyTool[VerificationTool: Checks A, B, C, D]
     end
 
-    Writer --> FinalReport([Cited Executive Report & Waterfall Chart])
+    Writer --> FinalReport([Cited Executive Report, Waterfall Chart & Standalone HTML Briefing])
 ```
 
 ### Agent Roles & Responsibilities
 
 | Agent | Responsibility | Primary Input | Primary Output | Neuro-SAN Coded Tools |
 | :--- | :--- | :--- | :--- | :--- |
-| **1. Analyst Orchestrator** | Plans investigation, decomposes queries, coordinates specialists | User question + Workspace files | Investigation plan & sub-agent calls | Sub-agent routing |
-| **2. Document Researcher** | Searches textual documents, extracts exact citations | Query + Indexed files | Evidence snippets with page/section pointers | `RetrievalTool`, `IngestionTool` |
+| **1. Analyst Orchestrator** | Plans investigation, decomposes queries, coordinates specialists | User question + Workspace files | Investigation plan & sub-agent telemetry | Sub-agent routing |
+| **2. Document Researcher** | Searches textual documents, extracts exact citations via Hybrid RRF | Query + Indexed files | Evidence snippets with page/section pointers | `RetrievalTool`, `IngestionTool` |
 | **3. Data Analyst** | Discovers schemas and computes deterministic variances | Tabular datasets | Reconciled profit bridge + Period deltas | `CalculationTool`, `SpreadsheetTool` |
-| **4. Cross-Source Investigator** | Reconciles numbers against written reports; flags contradictions | Data metrics + Text excerpts | Classified findings (Facts vs Causal narratives) | Contradiction detector |
-| **5. Verification Critic** | Audits findings across Checks A–D; triggers bounded retries | Draft claims + Calculation results | Audit scorecard (`APPROVED` / `NEEDS_CORRECTION`) | `VerificationTool` |
-| **6. Report Writer** | Formats final executive presentation from verified findings only | Verified findings + Audit report | Executive answer, tables, citations | `ReportGenerator` |
+| **4. Scenario Simulation Agent** | Simulates counterfactual What-If scenarios & 2D sensitivity grids | Baseline data + Modifications | Reconciled counterfactual bridges + Recovery % | `SimulationTool` |
+| **5. Document Forensics Agent** | Audits ratio surges, cost elasticity, and board target gaps | Multi-source datasets | Anomaly flags + Risk scorecard | `ForensicsTool` |
+| **6. Cross-Source Investigator** | Reconciles numbers against written reports; flags contradictions | Data metrics + Text excerpts | Classified findings (Facts vs Causal narratives) | Contradiction detector |
+| **7. Verification Critic** | Audits findings across Checks A–D; triggers bounded retries | Draft claims + Calculation results | Audit scorecard (`APPROVED` / `NEEDS_CORRECTION`) | `VerificationTool` |
+| **8. Report Writer** | Formats final executive presentation from verified findings only | Verified findings + Audit report | Executive answer, tables, HTML & PDF reports | `ReportGenerator` |
 
 ---
 
@@ -97,7 +108,45 @@ $$\sum \text{Impacts} = -60 + 15 - 25 - 10 = -80\text{k} \equiv \Delta P$$
 
 ---
 
-## 4. Verification Critic Evaluation Loop
+## 4. Key Advanced Capabilities
+
+### A. Autonomous What-If Counterfactual Simulation Engine
+When executives ask: *"What if marketing expenses had been held flat at Q2 levels?"*
+- Evaluates hypothetical operational levers (absolute values, relative deltas, or percentage adjustments).
+- Recalculates Operating Profit $P_{\text{counterfactual}}$ and re-verifies mathematical identity ($0.00$ discrepancy).
+- Computes **Profit Recovery**: $\Delta P_{\text{recovery}} = P_{\text{counterfactual}} - P_{\text{baseline}}$ and $\%$ of loss recovered.
+  - *Example:* Holding marketing flat at ₹100k recovers **+₹25k (31.25% of the ₹80k loss)**.
+- Generates **2D Sensitivity Heatmap Matrices** (e.g. Revenue variance $\pm 10\%$ vs Marketing spend $\pm 20\%$).
+- Ranks strategic recovery playbooks by bottom-line impact.
+
+### B. Statistical Financial Forensics & Target Gap Detection
+Audits data integrity and flags non-linear operational shifts:
+- **Operating Margin Contraction:** Flags that operating margin collapsed from $15.0\%$ to $7.45\%$ ($-50.3\%$ contraction).
+- **Marketing Intensity Inversion:** Flags that marketing jumped from $10.0\%$ to $13.3\%$ of revenue ($+33.0\%$ relative surge) during a period of contracting top-line.
+- **Cost Inelasticity:** Identifies that while revenue fell by $-6.0\%$, COGS only dropped by $-2.5\%$.
+- **Board Target Gap Reconciliation:** Compares realized metrics against `quarterly_targets.docx`:
+  - Revenue Target: ₹950k vs Actual: ₹940k (Shortfall: -10k)
+  - COGS Ceiling: ₹590k vs Actual: ₹585k (Favorable: Under ceiling by +5k)
+  - Operating Profit Target: ₹150k vs Actual: ₹70k (Critical Shortfall: -80k / -53.3%)
+
+### C. Standalone Interactive HTML Executive Briefing
+- Single-file, standalone HTML executive dashboard (`executive_briefing.html`) with zero external runtime dependencies.
+- Embedded responsive glassmorphism CSS, vector SVG waterfall chart, and traceable evidence drawer.
+- **Client-Side What-If Sandbox:** Drag interactive sliders to recalculate profit bridges directly in the browser!
+
+### D. Enterprise REST API (`api.py`)
+FastAPI application exposing the complete agent network:
+- `POST /api/v1/investigate`: Runs end-to-end investigation with citations and audit checks.
+- `POST /api/v1/simulate`: Counterfactual What-If scenario simulations.
+- `GET /api/v1/sensitivity`: 2D sensitivity matrix generation.
+- `GET /api/v1/playbooks`: Ranked strategic recovery playbooks.
+- `GET /api/v1/forensics`: Forensic anomaly analysis and target reconciliation.
+- `GET /api/v1/report/html` & `/report/pdf`: Downloadable briefings and reports.
+- Interactive Swagger documentation at `http://127.0.0.1:8000/docs`.
+
+---
+
+## 5. Verification Critic Evaluation Loop
 The Verification Critic enforces 4 independent deterministic checks before results are approved:
 - **Check A (Numerical Reconciliation):** Asserts component variances sum to $\Delta P$. Confirms baseline values ($x_1$) are preserved and zero-division errors are handled gracefully.
 - **Check B (Citation Validity):** Asserts every cited `evidence_id` exists in the evidence store and that the source text directly supports the claim.
@@ -107,43 +156,51 @@ The Verification Critic enforces 4 independent deterministic checks before resul
 
 ---
 
-## 5. Repository Structure
+## 6. Repository Structure
 
 ```
 hackathon/
 │
 ├── README.md                      # Comprehensive project documentation
-├── requirements.txt               # Pinned Python dependencies
+├── requirements.txt               # Pinned Python dependencies (FastAPI, Streamlit, etc.)
 ├── .env.example                   # Environment configuration template
 ├── .gitignore                     # Git exclusions
-├── app.py                         # Executive Streamlit Dashboard
+├── app.py                         # Executive Streamlit Dashboard (8 tabs)
+├── api.py                         # Enterprise FastAPI REST Server & OpenAPI Docs
+├── benchmark_runner.py            # Automated 12-scenario CLI benchmark runner
 │
 ├── registries/                    # Neuro-SAN HOCON configurations
 │   ├── manifest.hocon             # Network registry manifest
-│   └── document_analyst.hocon     # Multi-agent topology & tool bindings
+│   └── document_analyst.hocon     # Multi-agent topology & tool bindings (8 agents)
 │
 ├── coded_tools/                   # Neuro-SAN Coded Python Tools
 │   └── document_analyst/
 │       ├── ingestion_tool.py      # File discovery and extraction tool
-│       ├── retrieval_tool.py      # BM25 evidence search tool
+│       ├── retrieval_tool.py      # Hybrid BM25 + dense search tool
 │       ├── spreadsheet_tool.py    # Schema inspection tool
 │       ├── calculation_tool.py    # Deterministic profit bridge tool
+│       ├── simulation_tool.py     # Counterfactual simulation tool
+│       ├── forensics_tool.py      # Statistical forensics & anomaly tool
 │       └── verification_tool.py   # Multi-point audit critic tool
 │
 ├── src/                           # Core implementation modules
 │   ├── ingestion/                 # PDF, XLSX, CSV, DOCX loaders & DocumentManager
-│   ├── retrieval/                 # Tokenizer, sliding window chunker, BM25 engine
-│   ├── analysis/                  # Sanitization, period comparisons, profit bridge
+│   ├── retrieval/                 # Tokenizer, sliding window chunker, Hybrid RRF
+│   ├── analysis/                  # Profit bridge, counterfactual simulation, forensics, regional analysis
 │   ├── verification/              # Checks A, B, C, D & bounded evaluation loop
-│   ├── reporting/                 # Structured report generator (Markdown & PDF)
-│   └── agents/                    # 6 Specialist agents & Orchestrator
+│   ├── reporting/                 # Structured report generator (Markdown, PDF, HTML Briefing)
+│   └── agents/                    # 8 Specialist agents & Orchestrator
 │
-├── tests/                         # Pytest test suite (24 passing unit & benchmark tests)
+├── tests/                         # Pytest test suite (42 passing unit, integration & API tests)
 │   ├── test_calculations.py       # Mathematical formulas and zero-baseline tests
+│   ├── test_simulation.py         # Counterfactual simulation & sensitivity tests
+│   ├── test_forensics.py          # Ratio surge and target reconciliation tests
+│   ├── test_api.py                # FastAPI REST endpoint integration tests
 │   ├── test_retrieval.py          # Extraction and evidence provenance tests
 │   ├── test_verification.py       # Audit checks and retry loop tests
 │   ├── test_adversarial.py        # Prompt injection and causal check tests
-│   └── test_benchmark.py          # 10 core hackathon evaluation scenarios
+│   ├── test_advancements.py       # Hybrid RRF, regional reconciliation, and chart tests
+│   └── test_benchmark.py          # Core hackathon evaluation scenarios
 │
 ├── data/                          # Demo datasets
 │   └── synthetic_demo/
@@ -157,21 +214,22 @@ hackathon/
 │
 └── docs/                          # Detailed hackathon submission documents
     ├── architecture.md            # In-depth system architecture & Mermaid diagrams
-    ├── project_summary.md         # 1-2 page executive summary for judges
-    └── demo_script.md             # 3-5 minute live demonstration script
+    ├── project_summary.md         # Executive summary for hackathon judges
+    └── demo_script.md             # Live demonstration script
 ```
 
 ---
 
-## 6. Quickstart & Installation
+## 7. Quickstart & Installation
 
 ### Step 1: Clone Repository & Set Up Environment
 ```bash
-git clone https://github.com/your-username/evidence-first-analyst.git
-cd evidence-first-analyst
+git clone https://github.com/vasudev1876961/AgenticAI-HACKATHON.git
+cd AgenticAI-HACKATHON
 
 # Create virtual environment
 python -m venv .venv
+
 # On Windows:
 .\.venv\Scripts\Activate.ps1
 # On Linux/macOS:
@@ -181,33 +239,43 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Step 2: (Optional) Configure Environment Variables
+### Step 2: Run the Automated Test Suite & Benchmark CLI
 ```bash
-cp .env.example .env
-```
-*(Note: The system contains a fully deterministic reasoning engine that runs locally with 100% fidelity without requiring external API keys).*
-
-### Step 3: Run the Automated Test Suite & Benchmark CLI
-```bash
-# Run 27 comprehensive unit & advancement tests
+# Run 42 comprehensive unit, integration & API tests
 python -m pytest -v
 
-# Run 10-scenario hackathon benchmark evaluation
+# Run 12-scenario hackathon benchmark evaluation
 python benchmark_runner.py
 ```
-**Result:** 27 out of 27 unit tests pass (100%), and 10/10 hackathon scenarios pass with summary JSON export.
+**Result:** 42 out of 42 unit tests pass (100%), and 12/12 hackathon scenarios pass with summary JSON export.
 
-### Step 4: Launch the Streamlit Executive Dashboard
+### Step 3: Launch the Streamlit Executive Dashboard
 ```bash
 streamlit run app.py
 ```
-Open your browser to `http://localhost:8501` to interact with the executive interface!
+Open your browser to `http://localhost:8501` to explore all 8 interactive tabs:
+- 🚀 **Live Investigation:** Natural language queries with verified answers, citations, and waterfall charts.
+- 🔮 **What-If Simulator:** Interactive sliders, counterfactual profit bridge, sensitivity matrix, and playbooks.
+- 🔍 **Financial Forensics:** Ratio surge radar, anomaly scorecards, and board target reconciliation.
+- 🗺️ **Regional Drill-Down:** Geographical variance reconciliation to corporate totals.
+- 📑 **Evidence & Citations:** Grounded evidence registry with keyword search.
+- 🛡️ **Verification Critic:** Audit trail across Checks A–D.
+- 🎯 **Benchmark Suite:** One-click execution of the 12 evaluation scenarios.
+- 🏛️ **System Architecture:** Interactive topology and tool contract specifications.
+
+### Step 4: (Optional) Run the Enterprise REST API
+```bash
+python api.py
+# Or using uvicorn directly:
+uvicorn api:app --host 127.0.0.1 --port 8000 --reload
+```
+Access the interactive OpenAPI Swagger UI at `http://127.0.0.1:8000/docs`.
 
 ---
 
-## 7. 10-Scenario Hackathon Evaluation Benchmark
+## 8. 12-Scenario Hackathon Evaluation Benchmark
 
-The system was evaluated against the 10 benchmark questions specified in Section 15 of the Blueprint:
+The system was evaluated against the benchmark questions specified in Section 15 of the Blueprint plus advanced scenarios:
 
 | ID | Test Scenario | User Question | Target Behavior | Result |
 | :---: | :--- | :--- | :--- | :---: |
@@ -221,18 +289,23 @@ The system was evaluated against the 10 benchmark questions specified in Section
 | **08** | **Zero Baseline** | *"Calculate growth rate when earlier period is zero."* | Handles undefined percentage without crashing | **PASSED ✅** |
 | **09** | **Agent Coordination** | *"Investigate decline using spreadsheet and report."* | Orchestrates Researcher, Analyst, Critic, Writer | **PASSED ✅** |
 | **10** | **Verification Failure** | *"Draft claims profit rose, but data shows decline."* | Rejects draft, triggers remediation retry | **PASSED ✅** |
+| **11** | **Counterfactual What-If** | *"What if marketing had stayed flat at Q2 levels?"* | Reconciles +25k recovery (31.25% of loss) deterministically | **PASSED ✅** |
+| **12** | **Forensics & Target Audit** | *"Audit operational ratios against board targets."* | Detects margin collapse, marketing surge & target gap | **PASSED ✅** |
 
 ---
 
-## 8. Readiness Checklist (11/11 Verified)
+## 9. Readiness Checklist (14/14 Verified)
 - [x] **Environment:** Neuro-SAN compatible architecture, HOCON manifest and network parsed.
 - [x] **Ingestion:** PDF, XLSX, CSV, DOCX processed with exact provenance metadata.
-- [x] **Agent Network:** Orchestrator, Researcher, Data Analyst, Investigator, Critic, Report Writer.
-- [x] **Tools:** Python coded tools execute calculations, schema inspection, and evidence search.
+- [x] **Agent Network:** Orchestrator, Researcher, Analyst, Scenario Specialist, Forensics Specialist, Investigator, Critic, Writer.
+- [x] **Deterministic Coded Tools:** Python coded tools execute calculations, schema inspection, simulations, forensics, and evidence search.
 - [x] **Numerical Correctness:** Profit bridge reconciles deterministically ($100\%$, $0.00$ discrepancy).
+- [x] **Counterfactual Simulation:** Real-time What-If sandbox with 2D sensitivity grids and recovery playbooks.
+- [x] **Financial Forensics:** Ratio surge analysis, cost elasticity audits, and board target reconciliation.
 - [x] **Grounded Answers:** Important claims cite specific files, pages, sheets, and rows.
 - [x] **Evaluation Loop:** Independent Critic audits Checks A–D with bounded retries.
 - [x] **Contradiction Handling:** Inconsistent documents flagged and surfaced in audit reports.
-- [x] **User Experience:** Executive Streamlit dashboard with interactive Plotly waterfall chart.
-- [x] **Testing:** 24 unit & benchmark pytest tests passing ($100\%$).
+- [x] **Deliverables:** Streamlit Executive Dashboard, Standalone Interactive HTML Briefing, and PDF Audit Reports.
+- [x] **Enterprise API:** FastAPI REST server with Swagger UI and OpenAPI schemas.
+- [x] **Testing:** 42 unit, integration, and API pytest tests passing ($100\%$).
 - [x] **Submission Package:** README, architecture doc, project summary, demo script, and clean git repository.
