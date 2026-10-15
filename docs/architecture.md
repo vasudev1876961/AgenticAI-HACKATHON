@@ -5,8 +5,9 @@ Generic document chatbots rely on generative LLMs to perform both information re
 1. **Mathematical Hallucination**: LLMs frequently make calculation errors when comparing financial periods or aggregating expenses.
 2. **Citation Dissociation**: Chatbots generate plausible narratives that blend facts with unverified causal claims without preserving exact source provenance.
 3. **Inability to Test Counterfactuals**: Chatbots cannot answer executive "What-If" questions with verified accounting guarantees.
+4. **No Downside Risk & Leverage Modeling**: Chatbots cannot model stochastic uncertainty, Degree of Operating Leverage (DOL), or provide regulatory audit certification (SOX 404 / BCBS 239).
 
-Our **Evidence-First Autonomous Document and Data Analyst** decouples qualitative understanding from deterministic computation, orchestrating 8 specialist agents coordinated via the **Neuro-SAN** framework:
+Our **Evidence-First Autonomous Document and Data Analyst** decouples qualitative understanding from deterministic computation, orchestrating 9 specialist agents coordinated via the **Neuro-SAN** framework:
 
 ```mermaid
 graph TD
@@ -17,10 +18,11 @@ graph TD
         Orchestrator --> Analyst[3. Data Analyst Agent]
         Orchestrator --> ScenarioAgent[4. Scenario Simulation Agent]
         Orchestrator --> ForensicsAgent[5. Document Forensics Agent]
-        Researcher --> Investigator[6. Cross-Source Investigator Agent]
+        Orchestrator --> RiskAgent[6. Risk & Governance Agent]
+        Researcher --> Investigator[7. Cross-Source Investigator Agent]
         Analyst --> Investigator
-        Investigator --> Critic[7. Verification Critic Agent]
-        Critic -- "APPROVED" --> Writer[8. Report Writer Agent]
+        Investigator --> Critic[8. Verification Critic Agent]
+        Critic -- "APPROVED" --> Writer[9. Report Writer Agent]
         Critic -- "NEEDS_CORRECTION (Retry <= 2)" --> Orchestrator
     end
     
@@ -31,10 +33,12 @@ graph TD
         Analyst --> CalcTool[CalculationTool: Deterministic Profit Bridge]
         ScenarioAgent --> SimTool[SimulationTool: Counterfactual & Sensitivity]
         ForensicsAgent --> ForensicsTool[ForensicsTool: Ratio Surge & Target Gap]
+        RiskAgent --> MonteCarloTool[MonteCarloTool: Stochastic VaR 95/99]
+        RiskAgent --> RiskGovTool[RiskGovernanceTool: DOL & Lineage DAG]
         Critic --> VerifyTool[VerificationTool: Checks A, B, C, D]
     end
 
-    Writer --> FinalReport([Cited Executive Report, Waterfall Chart, HTML Briefing & REST API])
+    Writer --> FinalReport([Cited Executive Report, Waterfall Chart, HTML Voice Briefing & SOX Certificate])
 ```
 
 ---
@@ -48,9 +52,10 @@ graph TD
 | **3. Data Analyst** | Analyzes spreadsheets and computes deterministic variances | Financial metrics + Spreadsheet data | Reconciled profit bridge + Period deltas | `CalculationTool`, `SpreadsheetTool` |
 | **4. Scenario Simulation Agent** | Evaluates What-If interventions, calculates profit recovery & sensitivity matrices | Baseline financials + Modifications | Reconciled counterfactual bridges + Recovery % | `SimulationTool` |
 | **5. Document Forensics Agent** | Audits non-linear ratio surges, cost elasticity, and board target gaps | Multi-source datasets | Anomaly scorecard + Target reconciliation | `ForensicsTool` |
-| **6. Cross-Source Investigator** | Reconciles numbers against written reports; isolates contradictions | Numerical metrics + Document excerpts | Classified findings (Facts vs Causal claims) | Cross-referencing logic |
-| **7. Verification Critic** | Audits findings across Checks A–D, triggers bounded retries | Draft claims + Calculation results | Audit scorecard (`APPROVED` / `NEEDS_CORRECTION`) | `VerificationTool` |
-| **8. Report Writer** | Formats final executive presentation from verified findings only | Verified findings + Audit report | Executive summary, tables, HTML/PDF reports | `ReportGenerator` |
+| **6. Risk & Governance Agent** | Simulates Monte Carlo VaR, DuPont operating leverage & SOX audit certification | Multi-period financials | Value-at-Risk, DOL (8.89x), Lineage DAG | `MonteCarloTool`, `RiskGovernanceTool` |
+| **7. Cross-Source Investigator** | Reconciles numbers against written reports; isolates contradictions | Numerical metrics + Document excerpts | Classified findings (Facts vs Causal claims) | Cross-referencing logic |
+| **8. Verification Critic** | Audits findings across Checks A–D, triggers bounded retries | Draft claims + Calculation results | Audit scorecard (`APPROVED` / `NEEDS_CORRECTION`) | `VerificationTool` |
+| **9. Report Writer** | Formats final executive presentation from verified findings only | Verified findings + Audit report | Executive summary, tables, HTML/PDF reports | `ReportGenerator`, `ExecutiveBriefingHTML` |
 
 ---
 
@@ -68,7 +73,7 @@ graph TD
 - Employs **Reciprocal Rank Fusion (RRF)** combining dense semantic vectors and `BM25Okapi` keyword matching.
 - Preserves exact source location pointers across all retrieved chunks.
 
-### Step 3: Deterministic Financial Analysis & Simulation (`src/analysis/`)
+### Step 3: Deterministic Financial Analysis, Leverage & Risk (`src/analysis/`)
 - Pure Python formulas guarantee 100% mathematical accuracy:
   $$P = R - C - M - O$$
   $$\Delta P = \Delta R - \Delta C - \Delta M - \Delta O$$
@@ -79,7 +84,9 @@ graph TD
   - $\text{Impact}(O) = -(O_{\text{Q3}} - O_{\text{Q2}}) = -10\text{k}$
   - Sum of Impacts $\equiv \Delta P = -80\text{k}$ ($100\%$ reconciled, $0.00$ discrepancy).
 - **Counterfactual Engine**: Evaluates hypothetical management interventions and computes profit recovery deltas.
-- **Forensic Engine**: Tracks margin collapses, marketing intensity spikes, and target deviations.
+- **Monte Carlo Stochastic Risk Engine**: Runs 2,000 trials modeling operational uncertainty and calculating Value-at-Risk ($\text{VaR}_{95\%}$ & $\text{VaR}_{99\%}$) and Expected Shortfall ($\text{CVaR}_{95\%}$).
+- **DuPont Operating Leverage Engine**: Calculates Degree of Operating Leverage ($\text{DOL} = 8.89\text{x}$) and Break-Even Revenue ($₹835.7\text{k}$).
+- **Cryptographic Lineage DAG**: Generates SHA-256 hashes for all ingested files and certifies **SOX Section 404** / **BCBS 239** compliance.
 
 ### Step 4: Verification Critic Audit Loop (`src/verification/`)
 Every draft claim passes four strict audit checks:
@@ -93,12 +100,5 @@ Every draft claim passes four strict audit checks:
 
 ## 4. Neuro-SAN Framework Integration
 - **HOCON Manifest** (`registries/manifest.hocon`): Declares the agent network, entry agents, and metadata tags.
-- **Network Configuration** (`registries/document_analyst.hocon`): Declares agent roles, parent-child hierarchies, tool classes, and model parameters.
-- **Coded Tools** (`coded_tools/document_analyst/`): Implements Python tool classes connected to the agents according to the Neuro-SAN specification (`SimulationTool`, `ForensicsTool`, `CalculationTool`, `RetrievalTool`, `IngestionTool`, `SpreadsheetTool`, `VerificationTool`).
-
----
-
-## 5. Enterprise REST API (`api.py`)
-- Built with **FastAPI** for low-latency asynchronous serving.
-- Full OpenAPI 3.1 schema specification accessible via `/docs` (Swagger UI) and `/redoc`.
-- Integrates with external ERPs, BI dashboards, and enterprise agent workflows.
+- **Network Configuration** (`registries/document_analyst.hocon`): Declares 9 agent roles, parent-child hierarchies, tool classes, and model parameters.
+- **Coded Tools** (`coded_tools/document_analyst/`): Implements Python tool classes connected to the agents according to the Neuro-SAN specification (`SimulationTool`, `ForensicsTool`, `MonteCarloTool`, `RiskGovernanceTool`, `CalculationTool`, `RetrievalTool`, `IngestionTool`, `SpreadsheetTool`, `VerificationTool`).

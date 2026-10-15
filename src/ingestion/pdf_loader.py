@@ -5,7 +5,11 @@ Extracts page-by-page text, detects sections, and preserves exact source page re
 
 import os
 from typing import List, Dict, Any
-import fitz  # PyMuPDF
+try:
+    import pymupdf as fitz
+except ImportError:
+    import fitz
+
 
 
 def load_pdf(file_path: str) -> List[Dict[str, Any]]:

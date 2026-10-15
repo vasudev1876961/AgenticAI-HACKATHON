@@ -16,6 +16,7 @@ from .verifier import VerificationCriticAgent
 from .report_writer import ReportWriterAgent
 from .scenario_agent import ScenarioSimulationAgent
 from .forensics_agent import DocumentForensicsAgent
+from .risk_governance_agent import RiskGovernanceAgent
 from ..ingestion.loader_manager import DocumentManager
 from ..retrieval.search import EvidenceSearchEngine
 from ..retrieval.hybrid_search import HybridSearchEngine
@@ -60,6 +61,7 @@ class AnalystOrchestrator(BaseAgent):
         self.report_writer = ReportWriterAgent()
         self.scenario_simulator = ScenarioSimulationAgent(doc_manager)
         self.forensics_agent = DocumentForensicsAgent(doc_manager)
+        self.risk_governance_agent = RiskGovernanceAgent(doc_manager)
 
 
     def update_engine(self):
@@ -79,13 +81,15 @@ class AnalystOrchestrator(BaseAgent):
             "3. Execute deterministic Python calculations for Q2 vs Q3 variance and profit bridge.",
             "4. Perform cross-source investigation to reconcile narratives and isolate contradictions.",
             "5. Execute Verification Critic audit loop on calculations, citations, and evidence sufficiency.",
-            "6. Compile and deliver final executive cited report."
+            "6. Execute Risk & Governance analysis (Monte Carlo VaR, DuPont operating leverage, and SOX 404 audit lineage).",
+            "7. Compile and deliver final executive cited report."
         ]
         assigned_agents = [
             "DocumentResearcher",
             "DataAnalyst",
             "CrossSourceInvestigator",
             "VerificationCritic",
+            "RiskGovernanceAgent",
             "ReportWriter"
         ]
         return InvestigationPlan(
@@ -154,7 +158,15 @@ class AnalystOrchestrator(BaseAgent):
         # Step 6: Forensics & Anomaly Audit
         forensics_out = self.forensics_agent.audit()
 
-        # Step 7: Final Report Generation
+        # Step 7: Risk & Governance Evaluation (Monte Carlo VaR, DuPont Operating Leverage, Audit Lineage DAG)
+        risk_governance_out = self.risk_governance_agent.evaluate_risk_profile(
+            p1_name="Q2",
+            p2_name="Q3",
+            profit_bridge_result=bridge_dict,
+            critic_audit=audit_report
+        )
+
+        # Step 8: Final Report Generation
         final_report: FinalAnalysisReport = self.report_writer.write_report(
             question=question,
             bridge_result=bridge_dict,
@@ -175,6 +187,7 @@ class AnalystOrchestrator(BaseAgent):
         all_logs.extend(self.verifier.execution_log)
         all_logs.extend(self.forensics_agent.execution_log)
         all_logs.extend(self.scenario_simulator.execution_log)
+        all_logs.extend(self.risk_governance_agent.execution_log)
         all_logs.extend(self.report_writer.execution_log)
         all_logs.sort(key=lambda m: m.timestamp)
 
@@ -187,6 +200,7 @@ class AnalystOrchestrator(BaseAgent):
             "comparisons": comparisons,
             "regional_breakdown": analysis_out.get("regional_breakdown"),
             "forensics": forensics_out,
+            "risk_governance": risk_governance_out,
             "citations": retrieved_evidence[:6],
             "contradictions": contradictions,
             "audit": audit_report,

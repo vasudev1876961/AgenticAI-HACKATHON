@@ -108,3 +108,46 @@ def test_scenario_10_verification_failure_catch(orchestrator):
     )
     assert audit["status"] == "NEEDS_CORRECTION"
     assert audit["retry"] is True
+
+
+def test_scenario_11_what_if_counterfactual(orchestrator):
+    """11. Counterfactual What-If simulation and deterministic profit recovery."""
+    sim = orchestrator.scenario_simulator.simulate({"marketing": 100.0}, scenario_name="Flat Marketing")
+    assert sim["profit_recovery_amount"] == 25.0
+    assert sim["is_reconciled"] is True
+    assert sim["recovery_percentage"] > 30.0
+
+
+def test_scenario_12_forensic_ratio_target_audit(orchestrator):
+    """12. Forensics ratio surges, cost elasticity, and board target gaps."""
+    forensics = orchestrator.forensics_agent.audit()
+    assert len(forensics["anomalies"]) >= 2
+    assert len(forensics["target_reconciliation"]) >= 2
+    assert forensics["overall_risk_score"] in ["CRITICAL", "HIGH", "ELEVATED", "MODERATE"]
+
+
+def test_scenario_13_monte_carlo_var(orchestrator):
+    """13. Monte Carlo stochastic Value-at-Risk (VaR) and target achievement."""
+    risk_eval = orchestrator.risk_governance_agent.evaluate_risk_profile()
+    mc = risk_eval["monte_carlo"]
+    assert mc["iterations"] >= 500
+    assert mc["var_95"] > 0
+    assert len(mc["histogram_bins"]) == 20
+
+
+def test_scenario_14_dupont_leverage(orchestrator):
+    """14. DuPont Return on Sales decomposition and Degree of Operating Leverage."""
+    risk_eval = orchestrator.risk_governance_agent.evaluate_risk_profile()
+    dupont = risk_eval["dupont_leverage"]
+    assert dupont["degree_of_operating_leverage"] > 8.0
+    assert dupont["break_even_revenue_q3"] > 0
+    assert "SEVERE_NEGATIVE_OPERATING_LEVERAGE" in dupont["operating_risk_verdict"]
+
+
+def test_scenario_15_cryptographic_lineage_sox(orchestrator):
+    """15. Cryptographic Data Lineage DAG and SOX 404 Audit Certification."""
+    risk_eval = orchestrator.risk_governance_agent.evaluate_risk_profile()
+    lineage = risk_eval["audit_lineage"]
+    assert lineage["certificate_id"].startswith("SOX404-BCBS239-")
+    assert lineage["sox_404_compliance"]["certification_status"] == "CERTIFIED_COMPLIANT"
+    assert lineage["nodes_count"] >= 8

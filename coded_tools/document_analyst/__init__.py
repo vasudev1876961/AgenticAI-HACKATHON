@@ -5,6 +5,8 @@ from .calculation_tool import CalculationTool
 from .verification_tool import VerificationTool
 from .simulation_tool import SimulationTool
 from .forensics_tool import ForensicsTool
+from .monte_carlo_tool import MonteCarloTool
+from .risk_tool import RiskGovernanceTool
 
 __all__ = [
     "IngestionTool",
@@ -14,5 +16,7 @@ __all__ = [
     "VerificationTool",
     "SimulationTool",
     "ForensicsTool",
+    "MonteCarloTool",
+    "RiskGovernanceTool",
 ]
 

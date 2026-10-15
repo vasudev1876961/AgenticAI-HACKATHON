@@ -34,6 +34,7 @@ Never invent figures. Every numerical fact must be computed deterministically.
         "VerificationAgent",
         "ScenarioSimulationAgent",
         "DocumentForensicsAgent",
+        "RiskGovernanceAgent",
         "ReportWriter"
       ]
     }
@@ -149,6 +150,29 @@ You are the Document Forensics Specialist.
           name = "audit_forensics"
           class_path = "coded_tools.document_analyst.forensics_tool.ForensicsTool"
           description = "Audits financial ratios, cost elasticity, and target-vs-actual discrepancies."
+        }
+      ]
+    }
+
+    RiskGovernanceAgent {
+      type = "specialist"
+      description = "Performs Monte Carlo stochastic risk modeling, DuPont operational leverage (DOL), and SOX 404 audit certification."
+      instructions = """
+You are the Risk & Governance Specialist.
+- Run stochastic Monte Carlo simulations to calculate Value at Risk (VaR at 95%/99%) and target achievement probability.
+- Decompose profitability using DuPont analysis and compute the Degree of Operating Leverage (DOL) and break-even revenue.
+- Construct the cryptographic data lineage DAG and issue the SOX Section 404 / BCBS 239 audit compliance certificate.
+"""
+      tools = [
+        {
+          name = "monte_carlo_risk"
+          class_path = "coded_tools.document_analyst.monte_carlo_tool.MonteCarloTool"
+          description = "Runs Monte Carlo stochastic simulations for Value-at-Risk (VaR) and target achievement."
+        },
+        {
+          name = "risk_governance"
+          class_path = "coded_tools.document_analyst.risk_tool.RiskGovernanceTool"
+          description = "Computes DuPont operating leverage, break-even metrics, and cryptographic audit lineage."
         }
       ]
     }

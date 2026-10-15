@@ -1,6 +1,6 @@
 {
-  "total_scenarios": 12,
-  "passed": 12,
+  "total_scenarios": 15,
+  "passed": 15,
   "score_pct": 100.0,
   "results": [
     {
@@ -8,7 +8,7 @@
       "name": "Numerical Period Comparison",
       "target": "Deterministic variance calculation: Rev -60k, Profit -80k (-53.3%)",
       "outcome": "Investigated, Verified & Reconciled",
-      "latency_seconds": 0.024,
+      "latency_seconds": 0.028,
       "passed": true
     },
     {
@@ -16,7 +16,7 @@
       "name": "Root-Cause Investigation",
       "target": "Profit bridge: Revenue (-60k), Marketing (-25k), COGS (+15k), Opex (-10k)",
       "outcome": "Investigated, Verified & Reconciled",
-      "latency_seconds": 0.02,
+      "latency_seconds": 0.008,
       "passed": true
     },
     {
@@ -24,7 +24,7 @@
       "name": "Evidence Retrieval & Citations",
       "target": "Retrieve exact page numbers and excerpts from quarterly_review.pdf",
       "outcome": "Investigated, Verified & Reconciled",
-      "latency_seconds": 0.025,
+      "latency_seconds": 0.027,
       "passed": true
     },
     {
@@ -32,7 +32,7 @@
       "name": "Cross-Source Contradiction Catch",
       "target": "Detect conflict: Document claims cut, spreadsheet proves +25k increase",
       "outcome": "Investigated, Verified & Reconciled",
-      "latency_seconds": 0.025,
+      "latency_seconds": 0.016,
       "passed": true
     },
     {
@@ -40,7 +40,7 @@
       "name": "Unsupported Causal Claim Handling",
       "target": "Abstain / qualify: No empirical survey data confirms causal link",
       "outcome": "Investigated, Verified & Reconciled",
-      "latency_seconds": 0.026,
+      "latency_seconds": 0.016,
       "passed": true
     },
     {
@@ -48,7 +48,7 @@
       "name": "Missing Period Disclosure",
       "target": "Explicitly identify that Q1 data is absent without hallucinating",
       "outcome": "Investigated, Verified & Reconciled",
-      "latency_seconds": 0.013,
+      "latency_seconds": 0.016,
       "passed": true
     },
     {
@@ -56,7 +56,7 @@
       "name": "Irrelevant Document Isolation",
       "target": "Extract exact marketing expense (125k) without extraneous noise",
       "outcome": "Investigated, Verified & Reconciled",
-      "latency_seconds": 0.018,
+      "latency_seconds": 0.004,
       "passed": true
     },
     {
@@ -72,7 +72,7 @@
       "name": "Agent Coordination & Telemetry",
       "target": "Trace routing through Researcher, Analyst, Critic, and Writer",
       "outcome": "Investigated, Verified & Reconciled",
-      "latency_seconds": 0.02,
+      "latency_seconds": 0.016,
       "passed": true
     },
     {
@@ -88,7 +88,7 @@
       "name": "What-If Counterfactual Model",
       "target": "Deterministic simulation: +25k recovery (31.25% of loss) & 100% reconciled",
       "outcome": "Recovery: +25.0k (31.2% recovered), Reconciled: True",
-      "latency_seconds": 0.004,
+      "latency_seconds": 0.0,
       "passed": true
     },
     {
@@ -96,7 +96,31 @@
       "name": "Forensic Ratio & Target Audit",
       "target": "Flags operating margin contraction, marketing surge, and target gaps",
       "outcome": "Anomalies: 6, Targets Audited: 3, Risk: ELEVATED",
-      "latency_seconds": 0.003,
+      "latency_seconds": 0.016,
+      "passed": true
+    },
+    {
+      "id": "SCN-13",
+      "name": "Monte Carlo Stochastic Risk & VaR",
+      "target": "Simulates 1000 trials: computes VaR(95%), Expected Shortfall, and target achievement probability",
+      "outcome": "VaR(95%): 79.22k, CVaR: -30.6k, Target Achieved: 5.1%",
+      "latency_seconds": 0.007,
+      "passed": true
+    },
+    {
+      "id": "SCN-14",
+      "name": "DuPont Leverage & Break-Even",
+      "target": "Computes DOL (8.89x), Return on Sales compression (-755 bps), and Break-Even Revenue",
+      "outcome": "DOL: 8.888x, Break-Even: 815.97k, Verdict: SEVERE_NEGATIVE_OPERATING_LEVERAGE",
+      "latency_seconds": 0.0,
+      "passed": true
+    },
+    {
+      "id": "SCN-15",
+      "name": "Cryptographic Lineage & SOX 404",
+      "target": "Generates SHA-256 hashes, full lineage DAG, and certifies SOX 404 / BCBS 239 compliance",
+      "outcome": "Cert ID: SOX404-BCBS239-78F28642BAF3, Status: CERTIFIED_COMPLIANT, Nodes: 17",
+      "latency_seconds": 0.01,
       "passed": true
     }
   ]

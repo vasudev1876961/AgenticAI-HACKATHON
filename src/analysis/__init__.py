@@ -16,6 +16,20 @@ from .document_forensics import (
     AnomalyFlag
 )
 
+from .monte_carlo_simulation import (
+    run_monte_carlo_simulation,
+    MonteCarloRiskResult
+)
+from .dupont_analysis import (
+    analyze_dupont_leverage,
+    DuPontAnalysisResult
+)
+from .data_lineage import (
+    generate_audit_lineage,
+    compute_file_sha256,
+    AuditLineageReport
+)
+
 __all__ = [
     "clean_numeric_value",
     "normalize_dataframe",
@@ -34,5 +48,12 @@ __all__ = [
     "calculate_financial_ratios",
     "FinancialForensicsReport",
     "AnomalyFlag",
+    "run_monte_carlo_simulation",
+    "MonteCarloRiskResult",
+    "analyze_dupont_leverage",
+    "DuPontAnalysisResult",
+    "generate_audit_lineage",
+    "compute_file_sha256",
+    "AuditLineageReport",
 ]
 

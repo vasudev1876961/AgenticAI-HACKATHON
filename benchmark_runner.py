@@ -104,6 +104,24 @@ def run_benchmarks():
             "name": "Forensic Ratio & Target Audit",
             "query": "Audit operational ratios and compare realized numbers with board targets.",
             "target": "Flags operating margin contraction, marketing surge, and target gaps"
+        },
+        {
+            "id": "SCN-13",
+            "name": "Monte Carlo Stochastic Risk & VaR",
+            "query": "Quantify Value-at-Risk and downside profit probability distribution under operational uncertainty.",
+            "target": "Simulates 1000 trials: computes VaR(95%), Expected Shortfall, and target achievement probability"
+        },
+        {
+            "id": "SCN-14",
+            "name": "DuPont Leverage & Break-Even",
+            "query": "Decompose Return on Sales and evaluate Degree of Operating Leverage.",
+            "target": "Computes DOL (8.89x), Return on Sales compression (-755 bps), and Break-Even Revenue"
+        },
+        {
+            "id": "SCN-15",
+            "name": "Cryptographic Lineage & SOX 404",
+            "query": "Verify end-to-end audit DAG and certify regulatory controls.",
+            "target": "Generates SHA-256 hashes, full lineage DAG, and certifies SOX 404 / BCBS 239 compliance"
         }
     ]
 
@@ -111,7 +129,7 @@ def run_benchmarks():
     passed_count = 0
 
     print("\n" + "-" * 80)
-    print(f"{'ID':<8} | {'Scenario':<32} | {'Latency':<8} | {'Verdict'}")
+    print(f"{'ID':<8} | {'Scenario':<34} | {'Latency':<8} | {'Verdict'}")
     print("-" * 80)
 
     for bm in benchmarks:
@@ -140,6 +158,22 @@ def run_benchmarks():
             forensics = orchestrator.forensics_agent.audit()
             passed = len(forensics["anomalies"]) >= 2 and len(forensics["target_reconciliation"]) >= 2
             outcome_detail = f"Anomalies: {len(forensics['anomalies'])}, Targets Audited: {len(forensics['target_reconciliation'])}, Risk: {forensics['overall_risk_score']}"
+        elif bm["id"] == "SCN-13":
+            risk_eval = orchestrator.risk_governance_agent.evaluate_risk_profile()
+            mc = risk_eval["monte_carlo"]
+            passed = mc["iterations"] > 0 and mc["var_95"] > 0 and len(mc["histogram_bins"]) == 20
+            outcome_detail = f"VaR(95%): {mc['var_95']}k, CVaR: {mc['cvar_95']}k, Target Achieved: {mc['prob_target_achieved_pct']}%"
+        elif bm["id"] == "SCN-14":
+            risk_eval = orchestrator.risk_governance_agent.evaluate_risk_profile()
+            dupont = risk_eval["dupont_leverage"]
+            passed = dupont["degree_of_operating_leverage"] > 8.0 and dupont["break_even_revenue_q3"] > 0
+            outcome_detail = f"DOL: {dupont['degree_of_operating_leverage']}x, Break-Even: {dupont['break_even_revenue_q3']}k, Verdict: {dupont['operating_risk_verdict']}"
+        elif bm["id"] == "SCN-15":
+            risk_eval = orchestrator.risk_governance_agent.evaluate_risk_profile()
+            lineage = risk_eval["audit_lineage"]
+            sox = lineage["sox_404_compliance"]
+            passed = sox["certification_status"] == "CERTIFIED_COMPLIANT" and lineage["nodes_count"] >= 8
+            outcome_detail = f"Cert ID: {lineage['certificate_id']}, Status: {sox['certification_status']}, Nodes: {lineage['nodes_count']}"
         else:
             res = orchestrator.run_investigation(bm["query"])
             passed = True

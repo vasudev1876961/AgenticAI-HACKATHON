@@ -22,13 +22,16 @@ from src.ingestion.loader_manager import DocumentManager
 from src.agents.orchestrator import AnalystOrchestrator
 from src.analysis.counterfactual_simulation import simulate_counterfactual, generate_sensitivity_matrix, rank_recovery_levers
 from src.analysis.document_forensics import analyze_financial_forensics
+from src.analysis.monte_carlo_simulation import run_monte_carlo_simulation
+from src.analysis.dupont_analysis import analyze_dupont_leverage
+from src.analysis.data_lineage import generate_audit_lineage
 from src.reporting.executive_briefing_html import generate_executive_briefing_html
 
 # Initialize FastAPI App
 app = FastAPI(
     title="Evidence-First Autonomous Document and Data Analyst API",
     description="Enterprise Knowledge Agent REST API powered by Neuro-SAN Multi-Agent Network and Deterministic Calculations.",
-    version="2.1.0",
+    version="2.2.0",
     docs_url="/docs",
     redoc_url="/redoc"
 )
@@ -63,6 +66,16 @@ class SimulationRequest(BaseModel):
     modifications: Dict[str, Any] = Field(..., json_schema_extra={"example": {"marketing": 100.0}})
 
 
+class MonteCarloRequest(BaseModel):
+    iterations: int = Field(2000, ge=100, le=10000, json_schema_extra={"example": 2000})
+    target_profit: float = Field(150.0, json_schema_extra={"example": 150.0})
+    revenue_volatility: float = Field(0.08, ge=0.0, le=0.5, json_schema_extra={"example": 0.08})
+    cogs_inflation_volatility: float = Field(0.04, ge=0.0, le=0.3, json_schema_extra={"example": 0.04})
+    marketing_shock_volatility: float = Field(0.12, ge=0.0, le=0.5, json_schema_extra={"example": 0.12})
+    fixed_opex_volatility: float = Field(0.03, ge=0.0, le=0.2, json_schema_extra={"example": 0.03})
+    random_seed: Optional[int] = Field(42, json_schema_extra={"example": 42})
+
+
 
 # Endpoints
 @app.get("/", tags=["General"])
@@ -70,7 +83,7 @@ def root():
     return {
         "name": "Evidence-First Autonomous Document and Data Analyst API",
         "status": "online",
-        "version": "2.1.0",
+        "version": "2.2.0",
         "docs": "/docs",
         "theme": "Enterprise Knowledge Agents / Neuro-SAN Multi-Agent Network"
     }
@@ -91,6 +104,7 @@ def health_check():
             "VerificationCritic",
             "ScenarioSimulationAgent",
             "DocumentForensicsAgent",
+            "RiskGovernanceAgent",
             "ReportWriter"
         ]
     }
@@ -184,6 +198,64 @@ def get_forensics():
     return {"status": "success", "forensics": forensics}
 
 
+@app.post("/api/v1/monte-carlo", tags=["Risk & Governance"])
+def run_monte_carlo(req: MonteCarloRequest):
+    """
+    Executes a stochastic Monte Carlo simulation across financial operational distributions.
+    Computes Value-at-Risk (VaR at 95% and 99%), Expected Shortfall (CVaR),
+    and probability of achieving board targets.
+    """
+    p1_data, p2_data = orchestrator.scenario_simulator._extract_base_periods("Q2", "Q3")
+    res = run_monte_carlo_simulation(
+        base_data=p2_data,
+        target_profit=req.target_profit,
+        iterations=req.iterations,
+        revenue_volatility=req.revenue_volatility,
+        cogs_inflation_volatility=req.cogs_inflation_volatility,
+        marketing_shock_volatility=req.marketing_shock_volatility,
+        fixed_opex_volatility=req.fixed_opex_volatility,
+        random_seed=req.random_seed
+    )
+    return {"status": "success", "result": res.to_dict()}
+
+
+@app.get("/api/v1/dupont", tags=["Risk & Governance"])
+def get_dupont_leverage():
+    """
+    Computes DuPont Return-on-Sales (ROS) decomposition, Degree of Operating
+    Leverage (DOL), Break-Even Revenue, and Margin of Safety.
+    """
+    p1_data, p2_data = orchestrator.scenario_simulator._extract_base_periods("Q2", "Q3")
+    res = analyze_dupont_leverage(p1_data, p2_data)
+    return {"status": "success", "result": res.to_dict()}
+
+
+@app.get("/api/v1/lineage", tags=["Risk & Governance"])
+def get_data_lineage():
+    """
+    Retrieves the complete cryptographic audit lineage DAG (nodes, edges, SHA-256 hashes,
+    and Mermaid flowchart) linking raw cells/pages to verified executive claims.
+    """
+    res = orchestrator.data_analyst.perform_quarterly_analysis("Q2", "Q3")
+    lineage = generate_audit_lineage(doc_manager, profit_bridge_result=res.get("bridge"))
+    return {"status": "success", "lineage": lineage.to_dict()}
+
+
+@app.get("/api/v1/compliance", tags=["Risk & Governance"])
+def get_sox_compliance():
+    """
+    Generates the regulatory compliance certification package for SOX Section 404,
+    BCBS 239 risk data aggregation, and AICPA SOC 2 Type II auditability.
+    """
+    res = orchestrator.data_analyst.perform_quarterly_analysis("Q2", "Q3")
+    lineage = generate_audit_lineage(doc_manager, profit_bridge_result=res.get("bridge"))
+    return {
+        "status": "success",
+        "certificate_id": lineage.certificate_id,
+        "sox_404_certification": lineage.sox_404_compliance
+    }
+
+
 @app.get("/api/v1/report/html", response_class=HTMLResponse, tags=["Reporting"])
 def get_html_report(query: str = "Why did operating profit decline in Q3?"):
     """Generates and serves a standalone interactive HTML executive briefing."""
@@ -197,7 +269,8 @@ def get_html_report(query: str = "Why did operating profit decline in Q3?"):
         contradictions=res.get("contradictions", []),
         audit=res.get("audit", {}),
         regional_breakdown=res.get("regional_breakdown"),
-        forensics=res.get("forensics")
+        forensics=res.get("forensics"),
+        risk_governance=res.get("risk_governance")
     )
     return HTMLResponse(content=html)
 

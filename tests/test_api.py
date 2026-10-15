@@ -73,3 +73,51 @@ def test_api_forensics_endpoint():
     data = response.json()
     assert data["status"] == "success"
     assert "anomalies" in data["forensics"]
+
+
+def test_api_monte_carlo_endpoint():
+    response = client.post(
+        "/api/v1/monte-carlo",
+        json={"iterations": 500, "target_profit": 150.0, "random_seed": 42}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    res = data["result"]
+    assert res["iterations"] == 500
+    assert "var_95" in res
+    assert "percentiles" in res
+    assert len(res["histogram_bins"]) == 20
+
+
+def test_api_dupont_endpoint():
+    response = client.get("/api/v1/dupont")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    res = data["result"]
+    assert res["degree_of_operating_leverage"] > 5.0  # ~8.89x
+    assert res["break_even_revenue_q3"] > 0
+    assert "operating_risk_verdict" in res
+
+
+def test_api_lineage_endpoint():
+    response = client.get("/api/v1/lineage")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    lineage = data["lineage"]
+    assert lineage["nodes_count"] >= 5
+    assert lineage["edges_count"] >= 5
+    assert "graph LR" in lineage["mermaid_graph"]
+    assert "quarterly_financials.xlsx" in lineage["document_hashes"]
+
+
+def test_api_compliance_endpoint():
+    response = client.get("/api/v1/compliance")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    cert = data["sox_404_certification"]
+    assert cert["certification_status"] == "CERTIFIED_COMPLIANT"
+    assert len(cert["audit_checks"]) >= 5
