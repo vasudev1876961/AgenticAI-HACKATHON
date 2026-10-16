@@ -10,6 +10,7 @@ from ..ingestion.loader_manager import DocumentManager
 from ..analysis.monte_carlo_simulation import run_monte_carlo_simulation, MonteCarloRiskResult
 from ..analysis.dupont_analysis import analyze_dupont_leverage, DuPontAnalysisResult
 from ..analysis.data_lineage import generate_audit_lineage, AuditLineageReport
+from ..analysis.stress_testing import run_macro_stress_test, StressTestSummary
 from ..analysis.cleaning import clean_numeric_value
 
 
@@ -89,22 +90,34 @@ class RiskGovernanceAgent(BaseAgent):
             critic_audit=critic_audit
         )
 
+        # 4. Macroeconomic Stress Testing & Capital Resilience
+        stress_res: StressTestSummary = run_macro_stress_test(
+            baseline_revenue=p2_data["revenue"],
+            baseline_cogs=p2_data["cogs"],
+            baseline_marketing=p2_data["marketing"],
+            baseline_fixed_opex=p2_data["other_opex"]
+        )
+
         self.log_step(
             receiver="AnalystOrchestrator",
             step_name="RiskAssessmentCompleted",
-            content=f"Risk evaluation complete. VaR(95%): {round(monte_carlo_res.var_95, 2)}k, DOL: {round(dupont_res.degree_of_operating_leverage, 2)}x, SOX Status: {lineage_report.sox_404_compliance['certification_status']}."
+            content=f"Risk evaluation complete. VaR(95%): {round(monte_carlo_res.var_95, 2)}k, DOL: {round(dupont_res.degree_of_operating_leverage, 2)}x, Stress Rating: {stress_res.systemic_resilience_rating}, SOX Status: {lineage_report.sox_404_compliance['certification_status']}."
         )
 
         return {
             "monte_carlo": monte_carlo_res.to_dict(),
             "dupont_leverage": dupont_res.to_dict(),
             "audit_lineage": lineage_report.to_dict(),
+            "stress_testing": stress_res.to_dict(),
             "executive_risk_summary": {
                 "risk_tier": monte_carlo_res.simulated_scenarios_summary["risk_tier"],
                 "var_95_amount": monte_carlo_res.var_95,
                 "prob_target_achieved": monte_carlo_res.prob_target_achieved_pct,
                 "degree_of_operating_leverage": dupont_res.degree_of_operating_leverage,
                 "break_even_revenue": dupont_res.break_even_revenue_q3,
+                "systemic_resilience_rating": stress_res.systemic_resilience_rating,
+                "worst_case_scenario": stress_res.worst_case_scenario,
+                "max_capital_buffer_needed": stress_res.max_capital_buffer_needed,
                 "sox_certificate_id": lineage_report.certificate_id
             }
         }

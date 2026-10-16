@@ -47,6 +47,10 @@ htmlcov/
 outputs/*
 !outputs/.gitkeep
 !outputs/benchmark_summary.json
+!outputs/executive_briefing.html
+!outputs/investigation_report.md
+!outputs/sox_404_certificate.json
+!outputs/waterfall_bridge_chart.png
 temp/
 
 tmp/

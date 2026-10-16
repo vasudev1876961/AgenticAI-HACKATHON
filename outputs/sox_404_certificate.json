@@ -1,0 +1,155 @@
+{
+  "certificate_id": "SOX404-BCBS239-C8C1DA0C2B84",
+  "iso_timestamp": "2026-10-16T09:46:42Z",
+  "sox_404_compliance": {
+    "frameworks": [
+      "Sarbanes-Oxley Section 404",
+      "BCBS 239 Risk Data Aggregation",
+      "AICPA SOC 2 Type II Traceability"
+    ],
+    "certification_status": "CERTIFIED_COMPLIANT",
+    "audit_checks": [
+      {
+        "control_id": "SOX-CTL-01",
+        "control_name": "Deterministic Mathematical Invariance",
+        "standard": "Sum of component delta variances must reconcile identically to delta operating profit (tolerance = 0.00).",
+        "evidence": "Discrepancy: 0.000000",
+        "status": "PASS"
+      },
+      {
+        "control_id": "SOX-CTL-02",
+        "control_name": "Cryptographic Source File Provenance",
+        "standard": "All financial inputs must possess verifiable SHA-256 hash digests prior to computation.",
+        "evidence": "6 files hashed and registered.",
+        "status": "PASS"
+      },
+      {
+        "control_id": "SOX-CTL-03",
+        "control_name": "Cross-Document Contradiction Quarantine",
+        "standard": "Narrative statements in qualitative management reviews conflicting with general ledgers must be explicitly flagged.",
+        "evidence": "Contradiction detector flagged Marketing narrative mismatch with 100% precision.",
+        "status": "PASS"
+      },
+      {
+        "control_id": "SOX-CTL-04",
+        "control_name": "Adversarial Prompt Injection Defense",
+        "standard": "Documents containing override tokens must be quarantined without altering mathematical state.",
+        "evidence": "Verification Critic Check D neutralized prompt injection test payload.",
+        "status": "PASS"
+      },
+      {
+        "control_id": "SOX-CTL-05",
+        "control_name": "Traceable Cell-to-Claim Lineage DAG",
+        "standard": "Every derived financial metric must trace via an unbroken DAG path to underlying cell or text coordinates.",
+        "evidence": "Unbroken lineage confirmed across 17 nodes and 16 edges.",
+        "status": "PASS"
+      }
+    ],
+    "certification_sign_off": {
+      "auditor_agent": "VerificationCriticAgent",
+      "coordinating_agent": "AnalystOrchestrator",
+      "regulatory_rating": "AAA (Highest Assurance)",
+      "certificate_hash": "a22787cfca42d0fa716495681351f749319e43442599d5322941cf490a15b377"
+    }
+  },
+  "document_hashes": {
+    "marketing_spend.csv": "8d398e3bf93c5e2a35ebd8842fa9684322686cc87233fa62639e6e3d3ca6416c",
+    "prompt_injection_attempt.pdf": "18676b007f087e19835491a8478ee920c16ea1e4ed988529fcbbd7054a8aaa34",
+    "quarterly_financials.xlsx": "effae934026e61e7fa812d661a28098fa6abfc113d06f602835f61399cc19ff1",
+    "quarterly_review.pdf": "ff59427d26c29265aea8439eb45bb1bc4fd9789f62fe6a58ad52d042adf22fd7",
+    "quarterly_review_inconsistent.pdf": "48ea830ef6995f7009638f08a25c4c61fc0bfc3023b4c3a571f82981367daae8",
+    "quarterly_targets.docx": "b8494fdd3cc2413231bb0dbe3ce72ef5b6670426fc220c32970d02dccbed0ba4"
+  },
+  "stress_testing": {
+    "baseline_profit": 70.0,
+    "baseline_margin_pct": 7.45,
+    "num_scenarios_evaluated": 4,
+    "worst_case_scenario": "Stagflation Shock",
+    "worst_case_profit": -160.25,
+    "max_capital_buffer_needed": 341.0,
+    "average_stressed_profit": -79.21,
+    "systemic_resilience_rating": "D (Distressed Under Stress)",
+    "scenarios": [
+      {
+        "scenario_id": "STRESS-01",
+        "name": "Stagflation Shock",
+        "description": "Demand contraction coupled with COGS inflation and fixed overhead escalation.",
+        "revenue_shock_pct": -0.15,
+        "cogs_shock_pct": 0.12,
+        "marketing_shock_pct": 0.05,
+        "fixed_opex_shock_pct": 0.08,
+        "stressed_revenue": 799.0,
+        "stressed_cogs": 655.2,
+        "stressed_marketing": 131.25,
+        "stressed_opex": 172.8,
+        "stressed_profit": -160.25,
+        "stressed_margin_pct": -20.06,
+        "profit_delta_vs_baseline": -230.25,
+        "loss_severity_pct": 328.93,
+        "solvency_status": "INSOLVENT",
+        "estimated_runway_months": 5.6,
+        "recommended_capital_buffer": 341.0
+      },
+      {
+        "scenario_id": "STRESS-02",
+        "name": "CAC Hyper-Inflation & Market Saturation",
+        "description": "Intensifying competitive advertising spend with diminishing customer acquisition return.",
+        "revenue_shock_pct": -0.05,
+        "cogs_shock_pct": 0.0,
+        "marketing_shock_pct": 0.45,
+        "fixed_opex_shock_pct": 0.05,
+        "stressed_revenue": 893.0,
+        "stressed_cogs": 585.0,
+        "stressed_marketing": 181.25,
+        "stressed_opex": 168.0,
+        "stressed_profit": -41.25,
+        "stressed_margin_pct": -4.62,
+        "profit_delta_vs_baseline": -111.25,
+        "loss_severity_pct": 158.93,
+        "solvency_status": "DISTRESSED",
+        "estimated_runway_months": 21.8,
+        "recommended_capital_buffer": 0.0
+      },
+      {
+        "scenario_id": "STRESS-03",
+        "name": "Supply Chain Fracture & Raw Material Spike",
+        "description": "Logistics bottlenecks drive critical input costs up while order fulfillment delays dent sales.",
+        "revenue_shock_pct": -0.08,
+        "cogs_shock_pct": 0.2,
+        "marketing_shock_pct": -0.1,
+        "fixed_opex_shock_pct": 0.04,
+        "stressed_revenue": 864.8,
+        "stressed_cogs": 702.0,
+        "stressed_marketing": 112.5,
+        "stressed_opex": 166.4,
+        "stressed_profit": -116.1,
+        "stressed_margin_pct": -13.43,
+        "profit_delta_vs_baseline": -186.1,
+        "loss_severity_pct": 265.86,
+        "solvency_status": "INSOLVENT",
+        "estimated_runway_months": 7.8,
+        "recommended_capital_buffer": 164.4
+      },
+      {
+        "scenario_id": "STRESS-04",
+        "name": "Regulatory Compliance & Tech Migration Overhead",
+        "description": "Unplanned compliance audit fees, legal provisions, and accelerated cloud migration expenses.",
+        "revenue_shock_pct": 0.0,
+        "cogs_shock_pct": 0.05,
+        "marketing_shock_pct": 0.0,
+        "fixed_opex_shock_pct": 0.25,
+        "stressed_revenue": 940.0,
+        "stressed_cogs": 614.25,
+        "stressed_marketing": 125.0,
+        "stressed_opex": 200.0,
+        "stressed_profit": 0.75,
+        "stressed_margin_pct": 0.08,
+        "profit_delta_vs_baseline": -69.25,
+        "loss_severity_pct": 98.93,
+        "solvency_status": "VULNERABLE",
+        "estimated_runway_months": 36.0,
+        "recommended_capital_buffer": 0.0
+      }
+    ]
+  }
+}

@@ -151,3 +151,25 @@ def test_scenario_15_cryptographic_lineage_sox(orchestrator):
     assert lineage["certificate_id"].startswith("SOX404-BCBS239-")
     assert lineage["sox_404_compliance"]["certification_status"] == "CERTIFIED_COMPLIANT"
     assert lineage["nodes_count"] >= 8
+
+
+def test_scenario_16_macro_stress_testing(orchestrator):
+    """16. Multi-vector macroeconomic shock stress testing and capital buffer."""
+    risk_eval = orchestrator.risk_governance_agent.evaluate_risk_profile()
+    stress = risk_eval["stress_testing"]
+    assert stress["num_scenarios_evaluated"] == 4
+    assert "worst_case_scenario" in stress
+    assert isinstance(stress["worst_case_profit"], float)
+    assert stress["systemic_resilience_rating"] is not None
+
+
+def test_scenario_17_liquidity_runway_resilience(orchestrator):
+    """17. Liquidity runway months and solvency classification across shock vectors."""
+    risk_eval = orchestrator.risk_governance_agent.evaluate_risk_profile()
+    stress = risk_eval["stress_testing"]
+    scenarios = stress["scenarios"]
+    assert len(scenarios) == 4
+    for sc in scenarios:
+        assert sc["solvency_status"] in ["SOLVENT", "VULNERABLE", "DISTRESSED", "INSOLVENT"]
+        assert sc["estimated_runway_months"] > 0
+

@@ -122,6 +122,18 @@ def run_benchmarks():
             "name": "Cryptographic Lineage & SOX 404",
             "query": "Verify end-to-end audit DAG and certify regulatory controls.",
             "target": "Generates SHA-256 hashes, full lineage DAG, and certifies SOX 404 / BCBS 239 compliance"
+        },
+        {
+            "id": "SCN-16",
+            "name": "Macro Stress Testing & Capital Buffer",
+            "query": "Simulate multi-vector macroeconomic shocks and calculate capital buffer requirements.",
+            "target": "Evaluates 4 macro vectors: Stagflation, CAC spike, Supply chain, and Regulatory overhead"
+        },
+        {
+            "id": "SCN-17",
+            "name": "Liquidity Runway & Resilience Rating",
+            "query": "Assess systemic resilience rating and months of liquidity runway under adverse shock.",
+            "target": "Systemic Resilience rating, evaluates worst-case loss and runway preservation"
         }
     ]
 
@@ -174,6 +186,16 @@ def run_benchmarks():
             sox = lineage["sox_404_compliance"]
             passed = sox["certification_status"] == "CERTIFIED_COMPLIANT" and lineage["nodes_count"] >= 8
             outcome_detail = f"Cert ID: {lineage['certificate_id']}, Status: {sox['certification_status']}, Nodes: {lineage['nodes_count']}"
+        elif bm["id"] == "SCN-16":
+            risk_eval = orchestrator.risk_governance_agent.evaluate_risk_profile()
+            stress = risk_eval["stress_testing"]
+            passed = stress["num_scenarios_evaluated"] == 4 and "worst_case_scenario" in stress
+            outcome_detail = f"Rating: {stress['systemic_resilience_rating']}, Worst: {stress['worst_case_scenario']}, Stressed: {stress['worst_case_profit']}k"
+        elif bm["id"] == "SCN-17":
+            risk_eval = orchestrator.risk_governance_agent.evaluate_risk_profile()
+            stress = risk_eval["stress_testing"]
+            passed = len(stress["scenarios"]) == 4 and all(s["estimated_runway_months"] > 0 for s in stress["scenarios"])
+            outcome_detail = f"Evaluated {len(stress['scenarios'])} Macro Vectors, All Runway Calculated"
         else:
             res = orchestrator.run_investigation(bm["query"])
             passed = True

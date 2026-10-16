@@ -28,6 +28,7 @@ from src.analysis.document_forensics import analyze_financial_forensics
 from src.analysis.monte_carlo_simulation import run_monte_carlo_simulation
 from src.analysis.dupont_analysis import analyze_dupont_leverage
 from src.analysis.data_lineage import generate_audit_lineage
+from src.analysis.stress_testing import run_macro_stress_test
 from src.reporting.executive_briefing_html import generate_executive_briefing_html
 
 
@@ -674,10 +675,71 @@ with tab_risk:
     ])
     st.dataframe(df_percentiles, use_container_width=True, hide_index=True)
 
+    st.markdown("---")
+    st.markdown("### 3. Macroeconomic Stress Testing & Black Swan Capital Resilience")
+    st.markdown(
+        "Evaluate enterprise solvency and liquidity under systemic shocks: "
+        "Stagflation, CAC hyper-inflation, supply-chain disruption, and regulatory overhead."
+    )
 
-# =========================================================
-# TAB: AUDIT LINEAGE & SOX 404 CERTIFICATION
-# =========================================================
+    stress_result = run_macro_stress_test(
+        baseline_revenue=p2_base.get("revenue", 940.0),
+        baseline_cogs=p2_base.get("cogs", 585.0),
+        baseline_marketing=p2_base.get("marketing", 125.0),
+        baseline_fixed_opex=p2_base.get("other_opex", 160.0),
+        initial_cash_reserve=300.0
+    )
+
+    c_st1, c_st2, c_st3, c_st4 = st.columns(4)
+    with c_st1:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-lbl">Systemic Resilience Rating</div>
+            <div class="metric-val" style="color: #6EE7B7;">{stress_result.systemic_resilience_rating.split(' ')[0]}</div>
+            <small style="color: #94A3B8;">{stress_result.systemic_resilience_rating}</small>
+        </div>
+        """, unsafe_allow_html=True)
+    with c_st2:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-lbl">Worst-Case Shock Scenario</div>
+            <div class="metric-val" style="color: #EF4444; font-size: 20px;">{stress_result.worst_case_scenario}</div>
+            <small style="color: #F87171;">Stressed Profit: ₹{stress_result.worst_case_profit:.1f}k</small>
+        </div>
+        """, unsafe_allow_html=True)
+    with c_st3:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-lbl">Max Capital Buffer Needed</div>
+            <div class="metric-val" style="color: #FBBF24;">₹{stress_result.max_capital_buffer_needed:.1f}k</div>
+            <small style="color: #94A3B8;">12-Mo Insolvency Defense</small>
+        </div>
+        """, unsafe_allow_html=True)
+    with c_st4:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-lbl">Avg Stressed Profit</div>
+            <div class="metric-val" style="color: #38BDF8;">₹{stress_result.average_stressed_profit:.1f}k</div>
+            <small style="color: #94A3B8;">Across 4 Macro Vectors</small>
+        </div>
+        """, unsafe_allow_html=True)
+
+    df_stress = pd.DataFrame([
+        {
+            "Scenario ID": sc.scenario_id,
+            "Scenario Name": sc.name,
+            "Rev Shock": f"{sc.revenue_shock_pct:+.0%}",
+            "COGS Shock": f"{sc.cogs_shock_pct:+.0%}",
+            "Mkt Shock": f"{sc.marketing_shock_pct:+.0%}",
+            "Stressed Profit": f"₹{sc.stressed_profit:+.1f}k",
+            "Margin": f"{sc.stressed_margin_pct:.1f}%",
+            "Solvency Status": sc.solvency_status,
+            "Runway": f"{sc.estimated_runway_months:.0f} mos" if sc.estimated_runway_months < 36 else "36+ mos (Safe)",
+            "Buffer Needed": f"₹{sc.recommended_capital_buffer:.1f}k" if sc.recommended_capital_buffer > 0 else "₹0.0k (Covered)"
+        }
+        for sc in stress_result.scenarios
+    ])
+    st.dataframe(df_stress, use_container_width=True, hide_index=True)
 with tab_lineage:
     st.subheader("🏛️ Cryptographic Audit Lineage & Regulatory Compliance")
     st.markdown(

@@ -25,6 +25,7 @@ from src.analysis.document_forensics import analyze_financial_forensics
 from src.analysis.monte_carlo_simulation import run_monte_carlo_simulation
 from src.analysis.dupont_analysis import analyze_dupont_leverage
 from src.analysis.data_lineage import generate_audit_lineage
+from src.analysis.stress_testing import run_macro_stress_test
 from src.reporting.executive_briefing_html import generate_executive_briefing_html
 
 # Initialize FastAPI App
@@ -76,6 +77,14 @@ class MonteCarloRequest(BaseModel):
     random_seed: Optional[int] = Field(42, json_schema_extra={"example": 42})
 
 
+class StressTestRequest(BaseModel):
+    baseline_revenue: float = Field(940.0, json_schema_extra={"example": 940.0})
+    baseline_cogs: float = Field(585.0, json_schema_extra={"example": 585.0})
+    baseline_marketing: float = Field(125.0, json_schema_extra={"example": 125.0})
+    baseline_fixed_opex: float = Field(160.0, json_schema_extra={"example": 160.0})
+    initial_cash_reserve: float = Field(300.0, json_schema_extra={"example": 300.0})
+    custom_scenarios: Optional[List[Dict[str, Any]]] = None
+
 
 # Endpoints
 @app.get("/", tags=["General"])
@@ -83,10 +92,31 @@ def root():
     return {
         "name": "Evidence-First Autonomous Document and Data Analyst API",
         "status": "online",
-        "version": "2.2.0",
+        "version": "2.3.0",
         "docs": "/docs",
+        "dashboard": "/dashboard",
+        "report_html": "/api/v1/report/html",
         "theme": "Enterprise Knowledge Agents / Neuro-SAN Multi-Agent Network"
     }
+
+
+@app.get("/dashboard", response_class=HTMLResponse, tags=["General"])
+def get_executive_dashboard(query: str = "Why did our operating profit decline in Q3 compared with Q2?"):
+    """Serves the interactive executive briefing dashboard directly at /dashboard."""
+    res = orchestrator.run_investigation(query)
+    report_obj = res.get("report")
+    html = generate_executive_briefing_html(
+        report_title=f"Executive Briefing: {query}",
+        executive_summary=report_obj.executive_summary if report_obj else "",
+        bridge=res.get("bridge", {}),
+        citations=res.get("citations", []),
+        contradictions=res.get("contradictions", []),
+        audit=res.get("audit", {}),
+        regional_breakdown=res.get("regional_breakdown"),
+        forensics=res.get("forensics"),
+        risk_governance=res.get("risk_governance")
+    )
+    return HTMLResponse(content=html)
 
 
 @app.get("/health", tags=["General"])
@@ -254,6 +284,32 @@ def get_sox_compliance():
         "certificate_id": lineage.certificate_id,
         "sox_404_certification": lineage.sox_404_compliance
     }
+
+
+@app.get("/api/v1/stress-test", tags=["Risk & Governance"])
+def get_stress_test_report():
+    """
+    Executes preset macroeconomic stress testing scenarios: Stagflation, CAC Hyper-Inflation,
+    Supply Chain Fracture, and Regulatory Overhead, returning solvency status and capital buffer.
+    """
+    res = run_macro_stress_test()
+    return {"status": "success", "result": res.to_dict()}
+
+
+@app.post("/api/v1/stress-test", tags=["Risk & Governance"])
+def post_stress_test(req: StressTestRequest):
+    """
+    Simulates custom macroeconomic stress scenarios with custom financial baselines.
+    """
+    res = run_macro_stress_test(
+        baseline_revenue=req.baseline_revenue,
+        baseline_cogs=req.baseline_cogs,
+        baseline_marketing=req.baseline_marketing,
+        baseline_fixed_opex=req.baseline_fixed_opex,
+        initial_cash_reserve=req.initial_cash_reserve,
+        custom_scenarios=req.custom_scenarios
+    )
+    return {"status": "success", "result": res.to_dict()}
 
 
 @app.get("/api/v1/report/html", response_class=HTMLResponse, tags=["Reporting"])

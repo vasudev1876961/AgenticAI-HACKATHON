@@ -29,6 +29,12 @@ from .data_lineage import (
     compute_file_sha256,
     AuditLineageReport
 )
+from .stress_testing import (
+    run_macro_stress_test,
+    StressTestSummary,
+    ScenarioImpact,
+    PRESET_MACRO_SCENARIOS
+)
 
 __all__ = [
     "clean_numeric_value",
@@ -55,5 +61,9 @@ __all__ = [
     "generate_audit_lineage",
     "compute_file_sha256",
     "AuditLineageReport",
+    "run_macro_stress_test",
+    "StressTestSummary",
+    "ScenarioImpact",
+    "PRESET_MACRO_SCENARIOS",
 ]
 

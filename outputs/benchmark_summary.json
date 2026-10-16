@@ -1,6 +1,6 @@
 {
-  "total_scenarios": 15,
-  "passed": 15,
+  "total_scenarios": 17,
+  "passed": 17,
   "score_pct": 100.0,
   "results": [
     {
@@ -8,7 +8,7 @@
       "name": "Numerical Period Comparison",
       "target": "Deterministic variance calculation: Rev -60k, Profit -80k (-53.3%)",
       "outcome": "Investigated, Verified & Reconciled",
-      "latency_seconds": 0.028,
+      "latency_seconds": 0.018,
       "passed": true
     },
     {
@@ -16,7 +16,7 @@
       "name": "Root-Cause Investigation",
       "target": "Profit bridge: Revenue (-60k), Marketing (-25k), COGS (+15k), Opex (-10k)",
       "outcome": "Investigated, Verified & Reconciled",
-      "latency_seconds": 0.008,
+      "latency_seconds": 0.016,
       "passed": true
     },
     {
@@ -24,7 +24,7 @@
       "name": "Evidence Retrieval & Citations",
       "target": "Retrieve exact page numbers and excerpts from quarterly_review.pdf",
       "outcome": "Investigated, Verified & Reconciled",
-      "latency_seconds": 0.027,
+      "latency_seconds": 0.014,
       "passed": true
     },
     {
@@ -40,7 +40,7 @@
       "name": "Unsupported Causal Claim Handling",
       "target": "Abstain / qualify: No empirical survey data confirms causal link",
       "outcome": "Investigated, Verified & Reconciled",
-      "latency_seconds": 0.016,
+      "latency_seconds": 0.014,
       "passed": true
     },
     {
@@ -48,7 +48,7 @@
       "name": "Missing Period Disclosure",
       "target": "Explicitly identify that Q1 data is absent without hallucinating",
       "outcome": "Investigated, Verified & Reconciled",
-      "latency_seconds": 0.016,
+      "latency_seconds": 0.014,
       "passed": true
     },
     {
@@ -56,7 +56,7 @@
       "name": "Irrelevant Document Isolation",
       "target": "Extract exact marketing expense (125k) without extraneous noise",
       "outcome": "Investigated, Verified & Reconciled",
-      "latency_seconds": 0.004,
+      "latency_seconds": 0.013,
       "passed": true
     },
     {
@@ -72,7 +72,7 @@
       "name": "Agent Coordination & Telemetry",
       "target": "Trace routing through Researcher, Analyst, Critic, and Writer",
       "outcome": "Investigated, Verified & Reconciled",
-      "latency_seconds": 0.016,
+      "latency_seconds": 0.014,
       "passed": true
     },
     {
@@ -96,7 +96,7 @@
       "name": "Forensic Ratio & Target Audit",
       "target": "Flags operating margin contraction, marketing surge, and target gaps",
       "outcome": "Anomalies: 6, Targets Audited: 3, Risk: ELEVATED",
-      "latency_seconds": 0.016,
+      "latency_seconds": 0.001,
       "passed": true
     },
     {
@@ -104,7 +104,7 @@
       "name": "Monte Carlo Stochastic Risk & VaR",
       "target": "Simulates 1000 trials: computes VaR(95%), Expected Shortfall, and target achievement probability",
       "outcome": "VaR(95%): 79.22k, CVaR: -30.6k, Target Achieved: 5.1%",
-      "latency_seconds": 0.007,
+      "latency_seconds": 0.006,
       "passed": true
     },
     {
@@ -112,14 +112,30 @@
       "name": "DuPont Leverage & Break-Even",
       "target": "Computes DOL (8.89x), Return on Sales compression (-755 bps), and Break-Even Revenue",
       "outcome": "DOL: 8.888x, Break-Even: 815.97k, Verdict: SEVERE_NEGATIVE_OPERATING_LEVERAGE",
-      "latency_seconds": 0.0,
+      "latency_seconds": 0.009,
       "passed": true
     },
     {
       "id": "SCN-15",
       "name": "Cryptographic Lineage & SOX 404",
       "target": "Generates SHA-256 hashes, full lineage DAG, and certifies SOX 404 / BCBS 239 compliance",
-      "outcome": "Cert ID: SOX404-BCBS239-78F28642BAF3, Status: CERTIFIED_COMPLIANT, Nodes: 17",
+      "outcome": "Cert ID: SOX404-BCBS239-C3FC39BA5305, Status: CERTIFIED_COMPLIANT, Nodes: 17",
+      "latency_seconds": 0.011,
+      "passed": true
+    },
+    {
+      "id": "SCN-16",
+      "name": "Macro Stress Testing & Capital Buffer",
+      "target": "Evaluates 4 macro vectors: Stagflation, CAC spike, Supply chain, and Regulatory overhead",
+      "outcome": "Rating: D (Distressed Under Stress), Worst: Stagflation Shock, Stressed: -160.25k",
+      "latency_seconds": 0.011,
+      "passed": true
+    },
+    {
+      "id": "SCN-17",
+      "name": "Liquidity Runway & Resilience Rating",
+      "target": "Systemic Resilience rating, evaluates worst-case loss and runway preservation",
+      "outcome": "Evaluated 4 Macro Vectors, All Runway Calculated",
       "latency_seconds": 0.01,
       "passed": true
     }

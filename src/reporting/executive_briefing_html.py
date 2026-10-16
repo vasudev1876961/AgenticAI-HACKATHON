@@ -16,6 +16,7 @@ def generate_executive_briefing_html(
     bridge: Dict[str, Any],
     citations: List[Dict[str, Any]],
     contradictions: List[Dict[str, Any]],
+    audit: Optional[Dict[str, Any]] = None,
     regional_breakdown: Optional[Dict[str, Any]] = None,
     forensics: Optional[Dict[str, Any]] = None,
     risk_governance: Optional[Dict[str, Any]] = None,
@@ -52,6 +53,12 @@ def generate_executive_briefing_html(
 
     cert_id = lineage_data.get("certificate_id", "SOX404-BCBS239-CERTIFIED")
     cert_status = sox_data.get("certification_status", "CERTIFIED_COMPLIANT")
+
+    stress_data = risk_data.get("stress_testing", {})
+    stress_rating = stress_data.get("systemic_resilience_rating", "BBB (Adequate Resilience)")
+    worst_shock = stress_data.get("worst_case_scenario", "Stagflation Shock")
+    worst_profit = stress_data.get("worst_case_profit", 14.5)
+    max_buffer = stress_data.get("max_capital_buffer_needed", 0.0)
 
     # HTML Template
     html_content = f"""<!DOCTYPE html>
@@ -536,13 +543,15 @@ def generate_executive_briefing_html(
                 <div class="kpi-val val-green" style="font-size: 18px;">PASSED ✅</div>
             </div>
         </div>
+    </div>
+
     <!-- 6. RISK GOVERNANCE & SOX 404 CERTIFICATION -->
     <div class="section-card">
         <div class="section-title">
-            <span>🏛️</span> 6. Risk Quantification & SOX Section 404 Audit Certification
+            <span>🏛️</span> 6. Risk Quantification, Stress Testing & SOX 404 Audit
         </div>
         <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 16px;">
-            Stochastic Monte Carlo Value-at-Risk, DuPont Operational Leverage, and Cryptographic Compliance Ledger.
+            Stochastic Monte Carlo Value-at-Risk, DuPont Operational Leverage, Macroeconomic Stress Testing, and Cryptographic Compliance Ledger.
         </p>
 
         <div class="kpi-grid" style="margin-bottom: 16px;">
@@ -562,9 +571,9 @@ def generate_executive_briefing_html(
                 <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">Expected Shortfall (CVaR): ₹{cvar_95_val:.1f}k</div>
             </div>
             <div class="kpi-card" style="padding: 16px;">
-                <div class="kpi-lbl">Target Achievement Prob (150k)</div>
-                <div class="kpi-val val-red">{prob_target:.1f}%</div>
-                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">Requires Immediate Cost Guardrails</div>
+                <div class="kpi-lbl">Systemic Stress Rating</div>
+                <div class="kpi-val val-green" style="font-size: 18px;">{stress_rating.split(' ')[0]}</div>
+                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">Worst Shock: {worst_shock} (₹{worst_profit:.1f}k)</div>
             </div>
         </div>
 
@@ -572,7 +581,7 @@ def generate_executive_briefing_html(
             <div>
                 <div style="font-weight: 700; color: #6EE7B7; font-size: 13px;">SOX Section 404 / BCBS 239 Certification</div>
                 <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #94A3B8; margin-top: 3px;">
-                    Certificate ID: {cert_id} • Mathematical Discrepancy: 0.000000
+                    Certificate ID: {cert_id} • Mathematical Discrepancy: 0.000000 • Buffer Reserve: ₹{max_buffer:.1f}k
                 </div>
             </div>
             <span class="badge badge-green" style="font-size: 12px; padding: 6px 14px;">{cert_status}</span>

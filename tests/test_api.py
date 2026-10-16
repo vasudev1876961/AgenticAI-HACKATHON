@@ -121,3 +121,37 @@ def test_api_compliance_endpoint():
     cert = data["sox_404_certification"]
     assert cert["certification_status"] == "CERTIFIED_COMPLIANT"
     assert len(cert["audit_checks"]) >= 5
+
+
+def test_api_stress_test_endpoints():
+    # GET preset
+    res_get = client.get("/api/v1/stress-test")
+    assert res_get.status_code == 200
+    data_get = res_get.json()
+    assert data_get["status"] == "success"
+    assert "scenarios" in data_get["result"]
+    assert len(data_get["result"]["scenarios"]) == 4
+
+    # POST custom
+    res_post = client.post(
+        "/api/v1/stress-test",
+        json={
+            "baseline_revenue": 1000.0,
+            "baseline_cogs": 500.0,
+            "baseline_marketing": 100.0,
+            "baseline_fixed_opex": 100.0,
+            "initial_cash_reserve": 250.0
+        }
+    )
+    assert res_post.status_code == 200
+    data_post = res_post.json()
+    assert data_post["status"] == "success"
+    assert data_post["result"]["baseline_profit"] == 300.0
+
+
+def test_api_dashboard_endpoint():
+    response = client.get("/dashboard")
+    assert response.status_code == 200
+    assert "text/html" in response.headers.get("content-type", "")
+    assert "<!DOCTYPE html>" in response.text
+
